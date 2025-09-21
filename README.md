@@ -3,7 +3,7 @@
 
 [![Go Version](https://img.shields.io/badge/Go-1.19%2B-blue.svg)](https://golang.org/)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
-[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/your-username/your-repo-name/pulls)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/ourcolour/GenDict/pulls)
 
 一个使用Go语言开发的可视化数据字典生成工具，支持多种关系型数据库。该工具能够自动扫描数据库结构，生成详细的数据字典文档，并支持多种输出格式。
 
