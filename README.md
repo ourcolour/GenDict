@@ -1,5 +1,6 @@
 # 多数据库字典生成工具
-# Multi-DB Data Dictionary Generator
+
+[中文](README.md) [ENG](README_EN.md)
 
 [![Go Version](https://img.shields.io/badge/Go-1.19%2B-blue.svg)](https://golang.org/)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
