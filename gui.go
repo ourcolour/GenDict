@@ -179,7 +179,7 @@ func (this *MainView) initDebug(selected string) {
 	if "MySQL" == selected {
 		this.TxtUsername.SetText(username)
 		this.TxtPort.SetText(port)
-		this.TxtDbName.SetText("umt1998")
+		this.TxtDbName.SetText("student")
 		this.SelCharset.SetSelected("utf8mb4")
 		this.SelOutputFormat.SetSelected("xlsx")
 	} else if "SQLServer" == selected {
