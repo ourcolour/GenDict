@@ -6,6 +6,8 @@
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/your-username/your-repo-name/pulls)
 
+<img src="./Icon.png" alt="Icon" style="zoom: 25%;" />
+
 A visualized data dictionary generation tool developed using Go language, which supports multiple relational databases. This tool can automatically scan database structures, generate detailed data dictionary documents, and support multiple output formats.
 
 ![screen](screen.png)

@@ -349,6 +349,11 @@ func renderingExcelTable(templateData interface{}, doc *excelize.File, total int
 	yesNoMap := map[bool]string{true: "✔", false: "-"}
 	tableRowNo := ExcelTableRowMap["ColumnList"]
 	columnList := objInfo.ColumnList
+
+	// 新增对应该行数
+	doc.InsertRows(sheetName, tableRowNo, len(columnList)-1)
+
+	// 填写每一行数据
 	for idx, colValue := range columnList {
 		// 行号
 		tableRow := tableRowNo + idx
@@ -366,6 +371,9 @@ func renderingExcelTable(templateData interface{}, doc *excelize.File, total int
 	// 设置文字居中
 	doc.SetCellStyle(sheetName, fmt.Sprintf("B%d", tableRowNo), fmt.Sprintf("J%d", tableRowNo+len(columnList)-1), tableStyle1)
 
+	// 往下移动数据列行数+2行
+	tableRowNo += len(columnList) + 2
+
 	// 索引列表
 	indexList := objInfo.IndexList
 	for idx, colValue := range indexList {
@@ -374,13 +382,16 @@ func renderingExcelTable(templateData interface{}, doc *excelize.File, total int
 		// 设置内容
 		doc.SetCellValue(sheetName, fmt.Sprintf("B%d", tableRow), colValue.IndexName)
 		doc.SetCellValue(sheetName, fmt.Sprintf("C%d", tableRow), colValue.ColumnNames)
-		doc.SetCellValue(sheetName, fmt.Sprintf("D%d", tableRow), yesNoMap[colValue.IsPrimary])
-		doc.SetCellValue(sheetName, fmt.Sprintf("P%d", tableRow), yesNoMap[colValue.IsUnique])
-		doc.SetCellValue(sheetName, fmt.Sprintf("Q%d", tableRow), colValue.IndexType)
-		doc.SetCellValue(sheetName, fmt.Sprintf("R%d", tableRow), colValue.IndexComment)
+		doc.SetCellValue(sheetName, fmt.Sprintf("G%d", tableRow), colValue.IndexType)
+		doc.SetCellValue(sheetName, fmt.Sprintf("H%d", tableRow), yesNoMap[colValue.IsPrimary])
+		doc.SetCellValue(sheetName, fmt.Sprintf("I%d", tableRow), yesNoMap[colValue.IsUnique])
+		doc.SetCellValue(sheetName, fmt.Sprintf("J%d", tableRow), colValue.IndexComment)
+
+		// 合并“字段”单元格
+		doc.MergeCell(sheetName, fmt.Sprintf("C%d", tableRow), fmt.Sprintf("F%d", tableRow))
 	}
 	// 设置文字居中
-	doc.SetCellStyle(sheetName, fmt.Sprintf("M%d", tableRowNo), fmt.Sprintf("R%d", tableRowNo+len(indexList)-1), tableStyle1)
+	doc.SetCellStyle(sheetName, fmt.Sprintf("B%d", tableRowNo), fmt.Sprintf("J%d", tableRowNo+len(indexList)-1), tableStyle1)
 
 	// 当前为最后一个表时
 	if current == total {

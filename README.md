@@ -6,13 +6,15 @@
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/ourcolour/GenDict/pulls)
 
+<img src="./Icon.png" alt="Icon" style="zoom: 25%;" />
+
 一个使用Go语言开发的可视化数据字典生成工具，支持多种关系型数据库。该工具能够自动扫描数据库结构，生成详细的数据字典文档，并支持多种输出格式。
 
 ![screen](screen.png)
 
 ## 功能特性
 
-- **多数据库支持**: 支持 MySQL、PostgreSQL、Oracle、SQLite 等多种主流关系型数据库
+- **多数据库支持**: 支持 MySQL、PostgresSQL、Oracle、SQLite 等多种主流关系型数据库
 - **自动化扫描**: 自动解析数据库结构，提取表、视图、字段、索引等元数据信息
 - **多种输出格式**: 支持将数据字典导出为 Excel、Markdown 等多种格式，方便查阅和集成
 
