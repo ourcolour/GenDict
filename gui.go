@@ -11,6 +11,7 @@ import (
 	"fyne.io/fyne/v2/widget"
 	"goDict/configs"
 	"goDict/utils"
+	"os"
 	"strconv"
 	"strings"
 )
@@ -134,36 +135,67 @@ func (this *MainView) initDebug(selected string) {
 		return
 	}
 
+	// 读取环境变量
+	host := os.Getenv("host")
+	port := os.Getenv("port")
+	username := os.Getenv("username")
+	password := os.Getenv("password")
+
+	// 填写公共字段
+	if "" == host {
+		host = "localhost"
+	}
+	if "" == port {
+		if "MySQL" == selected {
+			username = "3306"
+		} else if "SQLServer" == selected {
+			username = "1433"
+		} else if "Oracle" == selected {
+			username = "1521"
+		} else if "SQLite" == selected {
+			username = "0"
+		}
+	}
+	if "" == username {
+		if "MySQL" == selected {
+			username = "root"
+		} else if "SQLServer" == selected {
+			username = "sa"
+		} else if "Oracle" == selected {
+			username = "ora"
+		} else if "SQLite" == selected {
+			username = ""
+		}
+	}
+	if "" == password {
+		password = "123456"
+	}
+	this.TxtHost.SetText(host)
+	this.TxtPort.SetText(port)
+	this.TxtUsername.SetText(username)
+	this.TxtPassword.SetText(password)
+
 	this.SelDbType.SetSelected(selected)
 	if "MySQL" == selected {
-		this.TxtHost.SetText("www.example.com")
-		this.TxtPort.SetText("3306")
-		this.TxtUsername.SetText("root")
-		this.TxtPassword.SetText("123456")
-		this.TxtDbName.SetText("album_web")
+		this.TxtUsername.SetText(username)
+		this.TxtPort.SetText(port)
+		this.TxtDbName.SetText("umt1998")
 		this.SelCharset.SetSelected("utf8mb4")
 		this.SelOutputFormat.SetSelected("xlsx")
 	} else if "SQLServer" == selected {
-		this.TxtHost.SetText("www.example.com")
-		this.TxtPort.SetText("1433")
-		this.TxtUsername.SetText("sa")
-		this.TxtPassword.SetText("123456")
+		this.TxtUsername.SetText(username)
+		this.TxtPort.SetText(port)
 		this.TxtDbName.SetText("tel-qa")
 		this.SelCharset.SetSelected("utf8mb4")
 		this.SelOutputFormat.SetSelected("xlsx")
 	} else if "Oracle" == selected {
-		this.TxtHost.SetText("www.example.com")
-		this.TxtPort.SetText("1521")
-		this.TxtUsername.SetText("scott")
-		this.TxtPassword.SetText("tiger")
+		this.TxtUsername.SetText(username)
+		this.TxtPort.SetText(port)
 		this.TxtDbName.SetText("orcl")
 		this.SelCharset.SetSelected("utf8mb4")
 		this.SelOutputFormat.SetSelected("xlsx")
 	} else if "SQLite" == selected {
-		this.TxtHost.SetText("/Users/cc/Desktop/test.db")
-		this.TxtPort.SetText("0")
-		this.TxtUsername.SetText("")
-		this.TxtPassword.SetText("")
+		this.TxtPort.SetText(port)
 		this.TxtDbName.SetText("")
 		this.SelCharset.SetSelected("utf8mb4")
 		this.SelOutputFormat.SetSelected("md")
@@ -254,7 +286,7 @@ func (this *MainView) init() {
 	// 设置端口
 	this.changePort(this.SelDbType.Selected)
 	// 调试模式自动填写
-	this.initDebug("SQLServer")
+	this.initDebug("MySQL")
 }
 
 // Show 显示窗口
