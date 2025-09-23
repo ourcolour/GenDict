@@ -2,7 +2,6 @@ package services
 
 import (
 	"errors"
-	"fmt"
 	"goDict/models"
 	"gorm.io/gorm"
 	"log/slog"
@@ -27,45 +26,52 @@ func NewDbDictService(db *gorm.DB) *DbDictService {
 	}
 }
 
-// getTableInfo 获取表信息
-func (this *DbDictService) getTableInfo(tableName string) (*models.TableInfo, error) {
-	migrator := this.DB.Migrator()
-
-	// 获取数据库名称（schema）
-	databaseName := migrator.CurrentDatabase()
-	// 确定当前对象类型（table / view）
-	tableType, err := this.getTableType(tableName)
-	if err != nil {
-		return nil, err
-	}
-
-	// 如果为空，尝试从查询结果中获取字段注释
-	tableCommentMap, err := this.getTableComment(databaseName, &tableName)
-	if err != nil {
-		return nil, err
-	}
-
-	// 获取表的列信息
-	columnTypes, err := migrator.ColumnTypes(tableName)
-	if err != nil {
-		return nil, err
-	}
+// buildTableInfo 获取表信息
+func (this *DbDictService) buildTableInfo(
+	databaseName string,
+	tableName string,
+	tableTypeMap *map[string]string,
+	tableColumnInfoMap *map[string][]*models.ColumnInfo,
+	indexInfoListMap *map[string][]*models.IndexInfo,
+	tableCommemtMap *map[string]string,
+) (*models.TableInfo, error) {
+	// 获取对象类型
+	tableType := (*tableTypeMap)[tableName]
+	// 获取索引
+	indexInfoList := (*indexInfoListMap)[tableName]
+	// 获取表注释
+	tableCommemt := (*tableCommemtMap)[tableName]
 
 	// 获取当前表字段注释
-	columnCommentMap, err := this.getTableColumnComment(tableName)
+	/*	columnCommentMap, err := this.getTableColumnComment(tableName)
+		if err != nil {
+			return nil, err
+		}*/
+
+	// 获取表的列信息
+	/*columnTypes, err := migrator.ColumnTypes(tableName)
 	if err != nil {
 		return nil, err
+	}*/
+
+	// 找到当前表所有字段
+	columnList, ok := (*tableColumnInfoMap)[tableName]
+	if !ok {
+		return nil, errors.New("未找到表字段信息")
 	}
 
+	// 创建表信息
 	tableInfo := &models.TableInfo{
 		DatabaseName: databaseName,
 		TableName:    tableName,
-		ColumnList:   make([]models.ColumnInfo, 0, len(columnTypes)),
+		ColumnList:   columnList,
 		TableType:    tableType,
-		Comment:      tableCommentMap[tableName],
+		Comment:      tableCommemt,
+		IndexList:    indexInfoList,
 	}
 
-	for _, columnType := range columnTypes {
+	// 处理列信息
+	/*for _, columnType := range columnTypes {
 		// 获取列名
 		name := columnType.Name()
 
@@ -133,7 +139,7 @@ func (this *DbDictService) getTableInfo(tableName string) (*models.TableInfo, er
 			}
 		}
 
-		tableInfo.ColumnList = append(tableInfo.ColumnList, models.ColumnInfo{
+		columnInfo := &models.ColumnInfo{
 			Name:            name,
 			Type:            dbType,
 			Length:          length,
@@ -144,14 +150,43 @@ func (this *DbDictService) getTableInfo(tableName string) (*models.TableInfo, er
 			IsAutoIncrement: isAutoIncrement,
 			IsUnique:        isUnique,
 			DecimalSize:     decimalSize,
-		})
+		}
+		tableInfo.ColumnList = append(tableInfo.ColumnList, columnInfo)
 	}
+	*/
 
 	return tableInfo, nil
 }
 
-// generateDatabase 生成数据库信息
-func (this *DbDictService) generateDatabase() (*models.DatabaseInfo, error) {
+// getDatabaseInfo 生成数据库信息
+func (this *DbDictService) getDatabaseInfo() (*models.DatabaseInfo, error) {
+	// 获取migrator对象
+	migrator := this.DB.Migrator()
+
+	// 获取数据库名称（schema）
+	databaseName := migrator.CurrentDatabase()
+	// 获取全库对象类型（按表聚合）
+	tableTypeMap, err := this.getTableType(databaseName)
+	if err != nil {
+		return nil, err
+	}
+	// 获取全库索引（按表聚合）
+	indexInfoListMap, err := this.getTableIndexInfoMap(databaseName)
+	if err != nil {
+		return nil, err
+	}
+	// 获取全库字段注释（按表聚合）
+	tableCommentMap, err := this.getTableComment(databaseName)
+	if err != nil {
+		return nil, err
+	}
+	// 获取全库字段类型（按表聚合）
+	tableColumnInfoMap, err := this.getTableColumnInfoMap(databaseName)
+	if err != nil {
+		return nil, err
+	}
+
+	// 获取所有表名
 	tableList, err := this.DB.Migrator().GetTables()
 	if err != nil {
 		return nil, err
@@ -162,7 +197,7 @@ func (this *DbDictService) generateDatabase() (*models.DatabaseInfo, error) {
 	tableMap := make(map[string]models.TableInfo)
 	// 遍历表
 	for _, tableName := range tableList {
-		tableInfo, err := this.getTableInfo(tableName)
+		tableInfo, err := this.buildTableInfo(databaseName, tableName, &tableTypeMap, &tableColumnInfoMap, &indexInfoListMap, &tableCommentMap)
 		if err != nil {
 			continue
 		}
@@ -187,48 +222,11 @@ func (this *DbDictService) generateDatabase() (*models.DatabaseInfo, error) {
 
 //  ----- BUILD --------------------
 
-// BuildTableByName 生成数据库字典（根据表名）
-func (this *DbDictService) BuildTableByName(format string, tableName string, outputDirPath string, overwrite bool, total int, current int) (string, error) {
-	// 生成数据库字典
-	tableInfo, err := this.getTableInfo(tableName)
-	if nil != err {
-		slog.Error("生成数据库字典失败", "error", err)
-		return "", err
-	}
-	slog.Debug("数据库字典", "tableInfo", tableInfo)
-
-	return this.buildByDataInfo(format, tableInfo, outputDirPath, overwrite, total, current)
-}
-
-// buildByDataInfo 生成数据库字典（根据数据）
-func (this *DbDictService) buildByDataInfo(format string, templateData interface{}, outputDirPath string, overwrite bool, total int, current int) (string, error) {
-	// Args
-	if nil == templateData {
-		return "", errors.New("请指定数据")
-	}
-	if "" == outputDirPath {
-		return "", fmt.Errorf("请指定输出目录")
-	}
-	if "" == format || !SUPPORTED_FORMAT[format] {
-		return "", fmt.Errorf("不支持的格式")
-	}
-
-	/* 判断数据类型 */
-	// 判断类型
-	if dataInfo, ok := templateData.(string); ok {
-		// 如果是字符串
-		return this.BuildTableByName(format, dataInfo, outputDirPath, overwrite, total, current)
-	}
-
-	// 根据模板生成内容
-	return this.rendering(format, templateData, outputDirPath, overwrite, total, current)
-}
-
 // BuildAll 生成数据库
 func (this *DbDictService) BuildAll(outputDirPath string, format string, overwrite bool) (result []string, err error) {
 	// Args
 	/* 获取数据库信息 */
-	databaseInfo, err := this.generateDatabase()
+	databaseInfo, err := this.getDatabaseInfo()
 	if nil != err {
 		slog.Error("生成数据库字典失败", "error", err)
 		return nil, err
@@ -243,7 +241,7 @@ func (this *DbDictService) BuildAll(outputDirPath string, format string, overwri
 	/* 生成数据库信息 */
 	// 计数
 	current++
-	cur, err := this.buildByDataInfo(format, databaseInfo, outputDirPath, overwrite, total, current)
+	cur, err := this.rendering(format, databaseInfo, outputDirPath, overwrite, total, current)
 	if nil != err {
 		return nil, err
 	}
@@ -264,7 +262,7 @@ func (this *DbDictService) BuildAll(outputDirPath string, format string, overwri
 		// 当前表信息
 		tableInfo := tableInfoMap[tableName]
 		// 保存到md文件
-		cur, err := this.buildByDataInfo(format, &tableInfo, outputDirPath, overwrite, total, current)
+		cur, err := this.rendering(format, &tableInfo, outputDirPath, overwrite, total, current)
 		if nil != err {
 			continue
 		}

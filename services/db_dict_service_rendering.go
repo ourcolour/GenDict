@@ -353,19 +353,34 @@ func renderingExcelTable(templateData interface{}, doc *excelize.File, total int
 		// 行号
 		tableRow := tableRowNo + idx
 		// 设置内容
-		doc.SetCellValue(sheetName, fmt.Sprintf("B%d", tableRow), colValue.Name)
-		doc.SetCellValue(sheetName, fmt.Sprintf("C%d", tableRow), colValue.Type)
-		doc.SetCellValue(sheetName, fmt.Sprintf("D%d", tableRow), fmt.Sprintf("%d, %d", colValue.DecimalSize.Precision, colValue.DecimalSize.Scale))
-		doc.SetCellValue(sheetName, fmt.Sprintf("E%d", tableRow), colValue.Nullable)
+		doc.SetCellValue(sheetName, fmt.Sprintf("B%d", tableRow), colValue.ColumnName)
+		doc.SetCellValue(sheetName, fmt.Sprintf("C%d", tableRow), colValue.DataType)
+		doc.SetCellValue(sheetName, fmt.Sprintf("D%d", tableRow), fmt.Sprintf("%d, %d, %d", colValue.Precision, colValue.Scale, colValue.Radix))
+		doc.SetCellValue(sheetName, fmt.Sprintf("E%d", tableRow), yesNoMap[colValue.Nullable])
 		doc.SetCellValue(sheetName, fmt.Sprintf("F%d", tableRow), colValue.Default)
 		doc.SetCellValue(sheetName, fmt.Sprintf("G%d", tableRow), yesNoMap[colValue.IsPrimary])
 		doc.SetCellValue(sheetName, fmt.Sprintf("H%d", tableRow), yesNoMap[colValue.IsAutoIncrement])
 		doc.SetCellValue(sheetName, fmt.Sprintf("I%d", tableRow), yesNoMap[colValue.IsUnique])
 		doc.SetCellValue(sheetName, fmt.Sprintf("J%d", tableRow), colValue.Comment)
 	}
-
 	// 设置文字居中
 	doc.SetCellStyle(sheetName, fmt.Sprintf("B%d", tableRowNo), fmt.Sprintf("J%d", tableRowNo+len(columnList)-1), tableStyle1)
+
+	// 索引列表
+	indexList := objInfo.IndexList
+	for idx, colValue := range indexList {
+		// 行号
+		tableRow := tableRowNo + idx
+		// 设置内容
+		doc.SetCellValue(sheetName, fmt.Sprintf("B%d", tableRow), colValue.IndexName)
+		doc.SetCellValue(sheetName, fmt.Sprintf("C%d", tableRow), colValue.ColumnNames)
+		doc.SetCellValue(sheetName, fmt.Sprintf("D%d", tableRow), yesNoMap[colValue.IsPrimary])
+		doc.SetCellValue(sheetName, fmt.Sprintf("P%d", tableRow), yesNoMap[colValue.IsUnique])
+		doc.SetCellValue(sheetName, fmt.Sprintf("Q%d", tableRow), colValue.IndexType)
+		doc.SetCellValue(sheetName, fmt.Sprintf("R%d", tableRow), colValue.IndexComment)
+	}
+	// 设置文字居中
+	doc.SetCellStyle(sheetName, fmt.Sprintf("M%d", tableRowNo), fmt.Sprintf("R%d", tableRowNo+len(indexList)-1), tableStyle1)
 
 	// 当前为最后一个表时
 	if current == total {

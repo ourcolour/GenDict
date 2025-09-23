@@ -113,6 +113,7 @@ func NewMainView() *MainView {
 	return instance
 }
 
+// initDefault 初始化默认值
 func (this *MainView) initDefault() {
 	// 设置默认输出目录
 	if nil != this.TxtOutputDir && "" == this.TxtOutputDir.Text {
@@ -125,21 +126,50 @@ func (this *MainView) initDefault() {
 		// 更新
 		this.TxtOutputDir.SetText(curPath)
 	}
+}
 
+func (this *MainView) initDebug(selected string) {
 	// 调试模式下加载默认配置
 	if !DEBUG {
 		return
 	}
 
-	this.SelDbType.SetSelected("MySQL")
-	this.TxtHost.SetText("www.example.com")
-	this.TxtPort.SetText("3306")
-	this.TxtUsername.SetText("root")
-	this.TxtPassword.SetText("123456")
-	this.TxtDbName.SetText("test")
-	this.SelCharset.SetSelected("utf8mb4")
-	this.SelOutputFormat.SetSelected("xlsx")
+	this.SelDbType.SetSelected(selected)
+	if "MySQL" == selected {
+		this.TxtHost.SetText("www.example.com")
+		this.TxtPort.SetText("3306")
+		this.TxtUsername.SetText("root")
+		this.TxtPassword.SetText("123456")
+		this.TxtDbName.SetText("album_web")
+		this.SelCharset.SetSelected("utf8mb4")
+		this.SelOutputFormat.SetSelected("xlsx")
+	} else if "SQLServer" == selected {
+		this.TxtHost.SetText("www.example.com")
+		this.TxtPort.SetText("1433")
+		this.TxtUsername.SetText("sa")
+		this.TxtPassword.SetText("123456")
+		this.TxtDbName.SetText("tel-qa")
+		this.SelCharset.SetSelected("utf8mb4")
+		this.SelOutputFormat.SetSelected("xlsx")
+	} else if "Oracle" == selected {
+		this.TxtHost.SetText("www.example.com")
+		this.TxtPort.SetText("1521")
+		this.TxtUsername.SetText("scott")
+		this.TxtPassword.SetText("tiger")
+		this.TxtDbName.SetText("orcl")
+		this.SelCharset.SetSelected("utf8mb4")
+		this.SelOutputFormat.SetSelected("xlsx")
+	} else if "SQLite" == selected {
+		this.TxtHost.SetText("/Users/cc/Desktop/test.db")
+		this.TxtPort.SetText("0")
+		this.TxtUsername.SetText("")
+		this.TxtPassword.SetText("")
+		this.TxtDbName.SetText("")
+		this.SelCharset.SetSelected("utf8mb4")
+		this.SelOutputFormat.SetSelected("md")
+	}
 }
+
 func (this *MainView) init() {
 	// 设置窗口大小
 	this.Window.Resize(fyne.NewSize(500, 400))
@@ -154,7 +184,7 @@ func (this *MainView) init() {
 
 	// 数据库类型
 	this.SelDbType = widget.NewSelect(DbTypeList, this.selDbType_onChanged)
-	this.SelDbType.SetSelectedIndex(0)
+	this.SelDbType.SetSelected(DbTypeList[0])
 	// 数据库地址
 	this.TxtHost = widget.NewEntry()
 	this.TxtHost.SetPlaceHolder("例如: 192.168.1.100 或 SQLite 文件名 test.db")
@@ -223,6 +253,8 @@ func (this *MainView) init() {
 	this.changeDisplayMode(this.SelDbType.Selected)
 	// 设置端口
 	this.changePort(this.SelDbType.Selected)
+	// 调试模式自动填写
+	this.initDebug("SQLServer")
 }
 
 // Show 显示窗口

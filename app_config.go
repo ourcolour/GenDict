@@ -8,11 +8,12 @@ import (
 )
 
 var (
+	IDX_COMMENT_COUNT = 0
 	// 应用名称
 	APP_NAME = "GenDict"
 
 	// 开启调试模式
-	DEBUG = os.Getenv("DEBUG") == "false"
+	DEBUG = os.Getenv("DEBUG") == "true"
 
 	// 开启数据库模型生成
 	DB_GEN = os.Getenv("DB_GEN") == "true"
