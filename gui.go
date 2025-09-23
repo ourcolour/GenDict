@@ -286,7 +286,7 @@ func (this *MainView) init() {
 	// 设置端口
 	this.changePort(this.SelDbType.Selected)
 	// 调试模式自动填写
-	this.initDebug("MySQL")
+	this.initDebug("SQLite")
 }
 
 // Show 显示窗口

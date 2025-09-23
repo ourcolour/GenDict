@@ -2,6 +2,7 @@ package services
 
 import (
 	"errors"
+	"goDict/configs"
 	"goDict/models"
 	"gorm.io/gorm"
 	"log/slog"
@@ -223,7 +224,7 @@ func (this *DbDictService) getDatabaseInfo() (*models.DatabaseInfo, error) {
 //  ----- BUILD --------------------
 
 // BuildAll 生成数据库
-func (this *DbDictService) BuildAll(outputDirPath string, format string, overwrite bool) (result []string, err error) {
+func (this *DbDictService) BuildAll(dbConfig *configs.DatabaseConfig, outputDirPath string, format string, overwrite bool) (result []string, err error) {
 	// Args
 	/* 获取数据库信息 */
 	databaseInfo, err := this.getDatabaseInfo()
@@ -241,7 +242,7 @@ func (this *DbDictService) BuildAll(outputDirPath string, format string, overwri
 	/* 生成数据库信息 */
 	// 计数
 	current++
-	cur, err := this.rendering(format, databaseInfo, outputDirPath, overwrite, total, current)
+	cur, err := this.rendering(dbConfig, format, databaseInfo, outputDirPath, overwrite, total, current)
 	if nil != err {
 		return nil, err
 	}
@@ -262,7 +263,7 @@ func (this *DbDictService) BuildAll(outputDirPath string, format string, overwri
 		// 当前表信息
 		tableInfo := tableInfoMap[tableName]
 		// 保存到md文件
-		cur, err := this.rendering(format, &tableInfo, outputDirPath, overwrite, total, current)
+		cur, err := this.rendering(dbConfig, format, &tableInfo, outputDirPath, overwrite, total, current)
 		if nil != err {
 			continue
 		}

@@ -5,11 +5,13 @@ import (
 	"errors"
 	"fmt"
 	"github.com/xuri/excelize/v2"
+	"goDict/configs"
 	"goDict/models"
 	"goDict/utils"
 	"os"
 	"path"
 	"path/filepath"
+	"strings"
 	"text/template"
 )
 
@@ -27,13 +29,13 @@ var ExcelTableRowMap = map[string]int{
 }
 
 // RENDERING_FUNC 渲染函数map
-var RENDERING_FUNC = map[string]func(templateData interface{}, outputDirPath string, overwrite bool, total int, current int) (string, error){
+var RENDERING_FUNC = map[string]func(dbConfig *configs.DatabaseConfig, templateData interface{}, outputDirPath string, overwrite bool, total int, current int) (string, error){
 	"md":   renderingMarkdown,
 	"xlsx": renderingExcel,
 }
 
 // rendering 生成markdown
-func (this *DbDictService) rendering(format string, templateData interface{}, outputDirPath string, overwrite bool, total int, current int) (string, error) {
+func (this *DbDictService) rendering(dbConfig *configs.DatabaseConfig, format string, templateData interface{}, outputDirPath string, overwrite bool, total int, current int) (string, error) {
 	// 获取处理函数
 	renderingFunc := RENDERING_FUNC[format]
 	if nil == renderingFunc {
@@ -41,11 +43,11 @@ func (this *DbDictService) rendering(format string, templateData interface{}, ou
 	}
 
 	// 调用函数渲染
-	return renderingFunc(templateData, outputDirPath, overwrite, total, current)
+	return renderingFunc(dbConfig, templateData, outputDirPath, overwrite, total, current)
 }
 
 // renderingMarkdown 渲染markdown
-func renderingMarkdown(templateData interface{}, outputDirPath string, overwrite bool, total int, current int) (string, error) {
+func renderingMarkdown(dbConfig *configs.DatabaseConfig, templateData interface{}, outputDirPath string, overwrite bool, total int, current int) (string, error) {
 	/* 获取基本信息 */
 	// 格式
 	var format = "md"
@@ -80,6 +82,16 @@ func renderingMarkdown(templateData interface{}, outputDirPath string, overwrite
 		return "", fmt.Errorf("不支持的数据类型")
 	}
 
+	// SQLite 保存文件名取原始文件名
+	if "SQLite" == dbConfig.Type {
+		// 原始文件名
+		srcFileName := filepath.Base(dbConfig.Host)
+		// 去掉扩展名
+		nameWithoutExt := strings.TrimSuffix(srcFileName, filepath.Ext(srcFileName))
+		// 更新
+		fileName = nameWithoutExt
+	}
+
 	/* 根据模板生成内容 */
 	/*// 读取模板
 	t, err := template.ParseFiles(templatePath)
@@ -107,9 +119,6 @@ func renderingMarkdown(templateData interface{}, outputDirPath string, overwrite
 	}
 	// 保存路径信息
 	fileExt := "md"
-	//if isDatabase {
-	//	fileName = "index"
-	//}
 	savePath := path.Join(outputDirPath, fmt.Sprintf("%s.%s", fileName, fileExt))
 
 	// 如果文件存在
@@ -145,7 +154,7 @@ func renderingMarkdown(templateData interface{}, outputDirPath string, overwrite
 }
 
 // 渲染excel
-func renderingExcel(templateData interface{}, outputDirPath string, overwrite bool, total int, current int) (string, error) {
+func renderingExcel(dbConfig *configs.DatabaseConfig, templateData interface{}, outputDirPath string, overwrite bool, total int, current int) (string, error) {
 	/* 获取基本信息 */
 	// 格式
 	var format = "xlsx"
@@ -227,9 +236,9 @@ func renderingExcel(templateData interface{}, outputDirPath string, overwrite bo
 
 	/* 生成表格 / 数据库 */
 	if isDatabase {
-		err = renderingExcelDatabase(templateData, doc, total, current)
+		err = renderingExcelDatabase(dbConfig, templateData, doc, total, current)
 	} else {
-		err = renderingExcelTable(templateData, doc, total, current)
+		err = renderingExcelTable(dbConfig, templateData, doc, total, current)
 	}
 	if nil != err {
 		return "", err
@@ -245,7 +254,7 @@ func renderingExcel(templateData interface{}, outputDirPath string, overwrite bo
 }
 
 // renderingExcelDatabase 渲染Excel数据库
-func renderingExcelDatabase(templateData interface{}, doc *excelize.File, total int, current int) error {
+func renderingExcelDatabase(dbConfig *configs.DatabaseConfig, templateData interface{}, doc *excelize.File, total int, current int) error {
 	// 转换值
 	objInfo := templateData.(*models.DatabaseInfo)
 
@@ -303,7 +312,7 @@ func renderingExcelDatabase(templateData interface{}, doc *excelize.File, total 
 }
 
 // renderingExcelTable 渲染Excel表格
-func renderingExcelTable(templateData interface{}, doc *excelize.File, total int, current int) error {
+func renderingExcelTable(dbConfig *configs.DatabaseConfig, templateData interface{}, doc *excelize.File, total int, current int) error {
 	// 转换值
 	objInfo := templateData.(*models.TableInfo)
 

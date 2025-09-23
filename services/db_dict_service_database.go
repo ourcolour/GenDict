@@ -31,7 +31,7 @@ func (this *DbDictService) getTableColumnInfoMap(databaseName string) (map[strin
 	}
 
 	// 参数
-	params := []interface{}{databaseName}
+	params := []interface{}{}
 
 	// 调用
 	err := this.DB.Raw(query, params...).Scan(&dataList).Error
@@ -603,12 +603,11 @@ func (this *DbDictService) getTableType(databaseName string) (map[string]string,
 			FROM sqlite_master t
 			WHERE
 				  t.type IN ('table', 'view')
-			  AND DatabaseName = 'main'
 			ORDER BY
 			    table_name
 			  , table_type
         `
-		err := this.DB.Raw(query, databaseName).Scan(&dataList).Error
+		err := this.DB.Raw(query).Scan(&dataList).Error
 		if err != nil {
 			return nil, err
 		}

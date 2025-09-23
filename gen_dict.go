@@ -33,7 +33,7 @@ func generateDict(dbConfig *configs.DatabaseConfig, saveDirPath string, format s
 	dbDictService := services.NewDbDictService(db)
 
 	// 生成数据库字典
-	pathList, err := dbDictService.BuildAll(saveDirPath, format, true)
+	pathList, err := dbDictService.BuildAll(dbConfig, saveDirPath, format, true)
 	if err != nil {
 		slog.Error("生成失败", "error", err)
 	} else {

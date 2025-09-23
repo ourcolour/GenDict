@@ -233,7 +233,7 @@ var (
 				AND il.origin = 'u'  -- 'u' 表示唯一约束[1](@ref)
 			) ui ON m.name = ui.table_name AND p.name = ui.column_name
 			WHERE m.type = 'table'
-			AND m.name = ?
+-- 			AND m.name = ?
 			ORDER BY m.name, p.cid;
 		`,
 	}
