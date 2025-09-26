@@ -4,6 +4,7 @@ import (
 	"errors"
 	"goDict/configs"
 	"goDict/models"
+	"goDict/utils"
 	"gorm.io/gorm"
 	"log/slog"
 	"slices"
@@ -226,6 +227,12 @@ func (this *DbDictService) getDatabaseInfo() (*models.DatabaseInfo, error) {
 // BuildAll 生成数据库
 func (this *DbDictService) BuildAll(dbConfig *configs.DatabaseConfig, outputDirPath string, format string, overwrite bool) (result []string, err error) {
 	// Args
+	// 如果是 SQLite 类型，需要判断文件是否存在
+	if "sqlite" == dbConfig.Type {
+		if !utils.FileExists(dbConfig.Database) {
+			return nil, errors.New("数据库文件不存在")
+		}
+	}
 	/* 获取数据库信息 */
 	databaseInfo, err := this.getDatabaseInfo()
 	if nil != err {

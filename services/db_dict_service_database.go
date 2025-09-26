@@ -31,7 +31,7 @@ func (this *DbDictService) getTableColumnInfoMap(databaseName string) (map[strin
 	}
 
 	// 参数
-	params := []interface{}{}
+	params := []interface{}{databaseName}
 
 	// 调用
 	err := this.DB.Raw(query, params...).Scan(&dataList).Error
