@@ -301,6 +301,9 @@ func (this *MainView) initDebug(selected string) {
 
 // Show 显示窗口
 func (this *MainView) Show() {
+	this.Window.SetOnClosed(func() {
+		os.Exit(0) // 窗口关闭时退出程序
+	})
 	this.Window.ShowAndRun()
 }
 
