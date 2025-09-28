@@ -1,0 +1,49 @@
+version: '1.0'
+name: pipeline-20250928
+displayName: pipeline-20250928
+triggers:
+  trigger: auto
+  push:
+    tags:
+      prefix:
+        - ''
+stages:
+  - name: stage-cedce215
+    displayName: master
+    strategy: naturally
+    trigger: auto
+    executor: []
+    steps:
+      - step: build@golang
+        name: gen-dict
+        displayName: Golang 构建
+        golangVersion: '1.24'
+        commands:
+          - '# 默认使用goproxy.cn'
+          - export GOPROXY=https://goproxy.cn
+          - '# 输入你的构建命令'
+          - make build
+        artifacts:
+          - name: BUILD_ARTIFACT
+            path:
+              - ./output
+        caches:
+          - /go/pkg/mod
+        notify: []
+        strategy:
+          retry: '0'
+  - name: stage-96f8f3cd
+    displayName: 未命名
+    strategy: naturally
+    trigger: auto
+    executor: []
+    steps:
+      - step: publish@release_artifacts
+        name: publish_release_artifacts
+        displayName: 发布
+        dependArtifact: output
+        version: 1.0.0.0
+        autoIncrement: true
+        notify: []
+        strategy:
+          retry: '0'
