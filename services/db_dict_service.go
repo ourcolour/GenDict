@@ -189,7 +189,12 @@ func (this *DbDictService) getDatabaseInfo() (*models.DatabaseInfo, error) {
 	}
 
 	// 获取所有表名
-	tableList, err := this.DB.Migrator().GetTables()
+	tableList := make([]string, 0, len(tableTypeMap))
+	for tableName := range tableTypeMap {
+		tableList = append(tableList, tableName)
+	}
+	// 排序
+	sort.Strings(tableList)
 	if err != nil {
 		return nil, err
 	}

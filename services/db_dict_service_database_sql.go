@@ -114,44 +114,46 @@ var (
 				c.numeric_precision AS precision,
 				c.numeric_precision_radix AS radix,
 				c.numeric_scale AS scale,
-				CASE WHEN c.is_nullable = 'YES' THEN 1 ELSE 0 END AS nullable,
+				CASE c.is_nullable WHEN 'YES' THEN 1 ELSE 0 END AS nullable,
 				CASE WHEN pk.column_name IS NOT NULL THEN 1 ELSE 0 END AS is_primary,
-				CASE WHEN EXISTS (
-					SELECT 1 
-					FROM information_schema.columns c2 
-					WHERE c2.table_schema = c.table_schema 
-					AND c2.table_name = c.table_name 
-					AND c2.column_name = c.column_name 
-					AND column_default LIKE 'nextval%'
-				) THEN 1 ELSE 0 END AS is_auto_increment,
+				CASE WHEN c.column_default LIKE 'nextval%' THEN 1 ELSE 0 END AS is_auto_increment,
 				CASE WHEN uni.column_name IS NOT NULL THEN 1 ELSE 0 END AS is_unique,
 				c.column_default AS default,
-				pg_catalog.col_description(format('%s.%s', quote_ident(c.table_schema), quote_ident(c.table_name))::regclass::oid, c.ordinal_position) AS comment
+				pg_catalog.col_description(
+						(c.table_schema || '.' || c.table_name)::regclass,
+						c.ordinal_position
+				) AS comment
 			FROM information_schema.columns c
-			LEFT JOIN (
-				SELECT
-					kcu.table_schema,
-					kcu.table_name,
-					kcu.column_name
-				FROM information_schema.table_constraints tc
-				JOIN information_schema.key_column_usage kcu 
-					ON tc.constraint_schema = kcu.constraint_schema 
-					AND tc.constraint_name = kcu.constraint_name
-				WHERE tc.constraint_type = 'PRIMARY KEY'
-			) pk ON c.table_schema = pk.table_schema AND c.table_name = pk.table_name AND c.column_name = pk.column_name
-			LEFT JOIN (
-				SELECT
-					kcu.table_schema,
-					kcu.table_name,
-					kcu.column_name
-				FROM information_schema.table_constraints tc
-				JOIN information_schema.key_column_usage kcu 
-					ON tc.constraint_schema = kcu.constraint_schema 
-					AND tc.constraint_name = kcu.constraint_name
-				WHERE tc.constraint_type = 'UNIQUE'
-			) uni ON c.table_schema = uni.table_schema AND c.table_name = uni.table_name AND c.column_name = uni.column_name
+				 LEFT JOIN (
+							   SELECT
+								   kcu.table_schema,
+								   kcu.table_name,
+								   kcu.column_name
+							   FROM information_schema.table_constraints tc
+									JOIN information_schema.key_column_usage kcu
+									ON tc.constraint_schema = kcu.constraint_schema
+										AND tc.constraint_name = kcu.constraint_name
+							   WHERE tc.constraint_type = 'PRIMARY KEY'
+						   ) pk
+				 ON c.table_schema = pk.table_schema
+					 AND c.table_name = pk.table_name
+					 AND c.column_name = pk.column_name
+				 LEFT JOIN (
+							   SELECT
+								   kcu.table_schema,
+								   kcu.table_name,
+								   kcu.column_name
+							   FROM information_schema.table_constraints tc
+									JOIN information_schema.key_column_usage kcu
+									ON tc.constraint_schema = kcu.constraint_schema
+										AND tc.constraint_name = kcu.constraint_name
+							   WHERE tc.constraint_type = 'UNIQUE'
+						   ) uni
+				 ON c.table_schema = uni.table_schema
+					 AND c.table_name = uni.table_name
+					 AND c.column_name = uni.column_name
 			WHERE c.table_catalog = ?
-			ORDER BY c.ordinal_position;
+			ORDER BY c.table_name, c.ordinal_position;
 		`,
 		"oracle": `
 			SELECT

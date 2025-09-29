@@ -220,7 +220,7 @@ func (this *MainView) init() {
 	// 设置端口
 	this.changePort(this.SelDbType.Selected)
 	// 调试模式自动填写
-	this.initDebug("SQLite")
+	this.initDebug("PostgresSQL")
 }
 
 // refreshUITexts 重新翻译界面文本
@@ -294,18 +294,22 @@ func (this *MainView) initDebug(selected string) {
 	}
 	if "" == port {
 		if "MySQL" == selected {
-			username = "3306"
+			port = "3306"
+		} else if "PostgresSQL" == selected {
+			port = "5432"
 		} else if "SQLServer" == selected {
-			username = "1433"
+			port = "1433"
 		} else if "Oracle" == selected {
-			username = "1521"
+			port = "1521"
 		} else if "SQLite" == selected {
-			username = "0"
+			port = "0"
 		}
 	}
 	if "" == username {
 		if "MySQL" == selected {
 			username = "root"
+		} else if "PostgresSQL" == selected {
+			username = "postgres"
 		} else if "SQLServer" == selected {
 			username = "sa"
 		} else if "Oracle" == selected {
@@ -327,6 +331,12 @@ func (this *MainView) initDebug(selected string) {
 		this.TxtUsername.SetText(username)
 		this.TxtPort.SetText(port)
 		this.TxtDbName.SetText("student")
+		this.SelCharset.SetSelected("utf8mb4")
+		this.SelOutputFormat.SetSelected("xlsx")
+	} else if "PostgresSQL" == selected {
+		this.TxtUsername.SetText(username)
+		this.TxtPort.SetText(port)
+		this.TxtDbName.SetText("umt1998")
 		this.SelCharset.SetSelected("utf8mb4")
 		this.SelOutputFormat.SetSelected("xlsx")
 	} else if "SQLServer" == selected {

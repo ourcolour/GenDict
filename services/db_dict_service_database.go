@@ -356,8 +356,7 @@ func (this *DbDictService) getTableComment(databaseName string) (map[string]stri
 			FROM information_schema.tables 
 			WHERE 
 				table_type IN ('BASE TABLE', 'VIEW')
--- 				table_catalog = ?
-				AND table_schema = ?
+				AND table_catalog = ?
         `
 		// PostgresSQL需要提供databaseName
 		params := []interface{}{databaseName}
@@ -453,11 +452,11 @@ func (this *DbDictService) getTableColumnComment(tableName string) (map[string]s
                     ordinal_position
                 ) AS comment
             FROM information_schema.columns 
-            WHERE table_name = $1 
-            AND table_schema = current_schema()
-            AND col_description(
-                (quote_ident(table_schema)||'.'||quote_ident(table_name))::regclass::oid, 
-                ordinal_position
+            WHERE table_catalog = current_catalog
+				AND table_name = ?
+				AND col_description(
+					(quote_ident(table_schema)||'.'||quote_ident(table_name))::regclass::oid, 
+					ordinal_position
             ) IS NOT NULL
         `
 		err := this.DB.Raw(query, tableName).Scan(&columnComments).Error
@@ -559,7 +558,7 @@ func (this *DbDictService) getTableType(databaseName string) (map[string]string,
 			FROM information_schema.tables t
 			WHERE
 			      t.table_schema NOT IN ('pg_catalog', 'information_schema')  
-				AND t.table_schema = ?  
+				AND t.table_catalog = ?  
 			ORDER BY
 			    table_name
 			  , table_type
