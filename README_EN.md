@@ -74,7 +74,6 @@ sudo mv gen-dict /usr/local/bin/
 3. Set output:
     - Select output format (Excel/Markdown)
     - Specify the save path
-    - Customize document title and description
 4. Generate document: Click the "Generate" button, wait for completion, and then check the output file
 
 ## 📋 Supported Databases
