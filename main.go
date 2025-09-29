@@ -15,11 +15,16 @@ func main() {
 		panic(err)
 	}
 
-	slog.Info("程序启动...")
+	// 初级化i18n
+	if err := utils.InitI18n(); nil != err {
+		slog.Error("Failed to initializing i18n.", "error", err)
+		panic(err)
+	}
+	slog.Info("App is now running ...")
 
 	// 初始化GUI
 	mainView := NewMainView()
 	mainView.Show()
 
-	slog.Info("程序退出...")
+	slog.Info("App exited ...")
 }

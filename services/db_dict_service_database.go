@@ -144,7 +144,7 @@ func (this *DbDictService) getTableIndexInfoMap(databaseName string) (map[string
 			  , index_type
 		`
 	case "postgres":
-		// PostgreSQL 查询索引信息
+		// PostgresSQL 查询索引信息
 		query = `
 			SELECT
 				CURRENT_DATABASE() AS database_name
@@ -348,7 +348,7 @@ func (this *DbDictService) getTableComment(databaseName string) (map[string]stri
 			return nil, err
 		}
 	case "postgres":
-		// PostgreSQL 从 information_schema.tables 获取表注释
+		// PostgresSQL 从 information_schema.tables 获取表注释
 		query := `
 			SELECT 
 				table_name AS table_name,
@@ -444,7 +444,7 @@ func (this *DbDictService) getTableColumnComment(tableName string) (map[string]s
 			return nil, err
 		}
 	case "postgres":
-		// PostgreSQL 从 information_schema 获取列注释
+		// PostgresSQL 从 information_schema 获取列注释
 		query := `
             SELECT 
                 column_name,
@@ -547,7 +547,7 @@ func (this *DbDictService) getTableType(databaseName string) (map[string]string,
 			return nil, err
 		}
 	} else if "postgres" == dbType {
-		// PostgreSQL 查询表类型
+		// PostgresSQL 查询表类型
 		query := `
             SELECT
 				  t.table_name AS table_name

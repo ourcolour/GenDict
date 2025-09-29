@@ -30,7 +30,7 @@ A visual data dictionary generation tool developed using the Go language, suppor
 ### Prerequisites
 
 - Go 1.24+ or higher (required only for source code compilation)
-- Supported target database (MySQL, PostgreSQL, Oracle, or SQLite)
+- Supported target database (MySQL, PostgresSQL, Oracle, or SQLite)
 - Database connection permissions (recommended for use in test environments)
 
 ### Installation Methods
@@ -84,7 +84,7 @@ The current tool supports the following database types.
 | Database   | Status | Vesion Requirement | Supported Features               |
 |------------|--------|------------------------|----------------------------------|
 | MySQL      | ✅ Supported   | 5.7+                   | Tables, Views, Indexes, Comments |
-| PostgreSQL | ✅ Supported   | 9.6+                   | Tables, Views, Indexes, Comments |
+| PostgresSQL | ✅ Supported   | 9.6+                   | Tables, Views, Indexes, Comments |
 | Oracle     | ✅ Supported   | 11g+                   | Tables, Views, Indexes, Comments |
 | SQLite     | ✅ Supported   | 3.0+                   | Tables, Views                    |
 
