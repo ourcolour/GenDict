@@ -46,8 +46,9 @@ type DecimalSizeInfo struct {
 
 // 表对象类型
 type TableType struct {
-	TableName string `json:"table_name"`
-	TableType string `json:"table_type"`
+	DatabaseName string `json:"database_name"`
+	TableName    string `json:"table_name"`
+	TableType    string `json:"table_type"`
 }
 
 // 表信息结构体

@@ -1,7 +1,7 @@
 package services
 
 var (
-	sql_getTableColumnInfos_map = map[string]string{
+	sql_getTableColumnInfosMap = map[string]string{
 		"sqlserver": `
 			SELECT
 				ty.ORDINAL_POSITION AS 'sort'
@@ -157,39 +157,59 @@ var (
 		`,
 		"oracle": `
 			SELECT
-				tc.COLUMN_ID AS "sort",
-				NULL AS "database_name",  -- Oracle 中通常不直接对应 TABLE_CATALOG
-				tc.OWNER AS "schema_name",
-				tc.TABLE_NAME AS "table_name",
-				tc.COLUMN_NAME AS "column_name",
-				tc.DATA_TYPE AS "data_type",
-				tc.DATA_LENGTH AS "length",
-				tc.DATA_PRECISION AS "precision",
-				tc.DATA_SCALE AS "scale",
-				CASE tc.NULLABLE WHEN 'Y' THEN 1 ELSE 0 END AS "nullable",
-				CASE WHEN pk.COLUMN_NAME IS NOT NULL THEN 1 ELSE 0 END AS "is_primary",
-				CASE WHEN idc.COLUMN_NAME IS NOT NULL THEN 1 ELSE 0 END AS "is_auto_increment",  -- 适用于 Oracle 12c 及以上版本
-				CASE WHEN uc.COLUMN_NAME IS NOT NULL THEN 1 ELSE 0 END AS "is_unique",
-				tc.DATA_DEFAULT AS "default",
-				cc.COMMENTS AS "comment"
+				tc.COLUMN_ID AS "sort"
+			  , NULL AS "database_name" -- Oracle 中通常不直接对应 TABLE_CATALOG
+			  , tc.OWNER AS "schema_name"
+			  , tc.TABLE_NAME AS "table_name"
+			  , tc.COLUMN_NAME AS "column_name"
+			  , tc.DATA_TYPE AS "data_type"
+			  , tc.DATA_LENGTH AS "length"
+			  , tc.DATA_PRECISION AS "precision"
+			  , tc.DATA_SCALE AS "scale"
+			  , CASE tc.NULLABLE WHEN 'Y' THEN 1 ELSE 0 END AS "nullable"
+			  , CASE WHEN pk.COLUMN_NAME IS NOT NULL THEN 1 ELSE 0 END AS "is_primary"
+			  , CASE WHEN idc.COLUMN_NAME IS NOT NULL THEN 1 ELSE 0 END AS "is_auto_increment" -- 适用于 Oracle 12c 及以上版本
+			  , CASE WHEN uc.COLUMN_NAME IS NOT NULL THEN 1 ELSE 0 END AS "is_unique"
+			  , tc.DATA_DEFAULT AS "default"
+			  , cc.COMMENTS AS "comment"
 			FROM ALL_TAB_COLUMNS tc
-			LEFT JOIN (
-				SELECT ccu.TABLE_NAME, ccu.COLUMN_NAME
-				FROM ALL_CONSTRAINTS cons
-				JOIN ALL_CONS_COLUMNS ccu ON cons.CONSTRAINT_NAME = ccu.CONSTRAINT_NAME AND cons.OWNER = ccu.OWNER
-				WHERE cons.CONSTRAINT_TYPE = 'P' AND cons.TABLE_NAME = ? AND cons.OWNER = ?
-			) pk ON tc.TABLE_NAME = pk.TABLE_NAME AND tc.COLUMN_NAME = pk.COLUMN_NAME
-			LEFT JOIN (
-				SELECT ccu.TABLE_NAME, ccu.COLUMN_NAME
-				FROM ALL_CONSTRAINTS cons
-				JOIN ALL_CONS_COLUMNS ccu ON cons.CONSTRAINT_NAME = ccu.CONSTRAINT_NAME AND cons.OWNER = ccu.OWNER
-				WHERE cons.CONSTRAINT_TYPE = 'U' AND cons.TABLE_NAME = ? AND cons.OWNER = ?
-			) uc ON tc.TABLE_NAME = uc.TABLE_NAME AND tc.COLUMN_NAME = uc.COLUMN_NAME
-			LEFT JOIN ALL_TAB_IDENTITY_COLS idc ON tc.TABLE_NAME = idc.TABLE_NAME AND tc.COLUMN_NAME = idc.COLUMN_NAME AND tc.OWNER = idc.OWNER
-			LEFT JOIN ALL_COL_COMMENTS cc ON tc.TABLE_NAME = cc.TABLE_NAME AND tc.COLUMN_NAME = cc.COLUMN_NAME AND tc.OWNER = cc.OWNER
-			WHERE tc.OWNER = ?
-	-- 			AND tc.TABLE_NAME = ? 
-			ORDER BY tc.COLUMN_ID
+				 LEFT JOIN (
+							   SELECT
+								   ccu.TABLE_NAME
+								 , ccu.COLUMN_NAME
+							   FROM ALL_CONSTRAINTS cons
+									JOIN ALL_CONS_COLUMNS ccu
+									ON cons.CONSTRAINT_NAME = ccu.CONSTRAINT_NAME AND cons.OWNER = ccu.OWNER
+							   WHERE
+									 cons.CONSTRAINT_TYPE = 'P'
+								 AND cons.OWNER = ?
+						   ) pk
+				 ON tc.TABLE_NAME = pk.TABLE_NAME AND tc.COLUMN_NAME = pk.COLUMN_NAME
+				 LEFT JOIN (
+							   SELECT
+								   ccu.TABLE_NAME
+								 , ccu.COLUMN_NAME
+							   FROM ALL_CONSTRAINTS cons
+									JOIN ALL_CONS_COLUMNS ccu
+									ON cons.CONSTRAINT_NAME = ccu.CONSTRAINT_NAME AND cons.OWNER = ccu.OWNER
+							   WHERE
+									 cons.CONSTRAINT_TYPE = 'U'
+								 AND cons.OWNER = ?
+			--                      AND cons.TABLE_NAME = :table_name
+						   ) uc
+				 ON tc.TABLE_NAME = uc.TABLE_NAME AND tc.COLUMN_NAME = uc.COLUMN_NAME
+				 LEFT JOIN ALL_TAB_IDENTITY_COLS idc
+				 ON tc.TABLE_NAME = idc.TABLE_NAME AND tc.COLUMN_NAME = idc.COLUMN_NAME AND tc.OWNER = idc.OWNER
+				 LEFT JOIN ALL_COL_COMMENTS cc
+				 ON tc.TABLE_NAME = cc.TABLE_NAME AND tc.COLUMN_NAME = cc.COLUMN_NAME AND tc.OWNER = cc.OWNER
+			WHERE
+				tc.OWNER = UPPER(?)
+			--   AND tc.TABLE_NAME = :table_name
+			ORDER BY
+				"database_name"
+			  , "schema_name"
+			  , "table_name"
+			  , "sort"
 		`,
 		"sqlite": `
 			SELECT 

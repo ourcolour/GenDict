@@ -2,18 +2,29 @@ package main
 
 import (
 	"encoding/json"
-	"errors"
 	"goDict/configs"
+	"goDict/models"
 	"goDict/services"
 	"log/slog"
 )
 
-func generateDict(dbConfig *configs.DatabaseConfig, saveDirPath string, format string) (string, error) {
-	// 初始化数据库配置
-	if nil == dbConfig {
-		return "", errors.New("数据库连接错误")
+// getDatabaseInfo 获取数据库信息
+func getDatabaseInfo(dbConfig *configs.DatabaseConfig) (*models.DatabaseInfo, error) {
+	// 初始化数据库连接
+	db, err := configs.InitDatabase(dbConfig)
+	if err != nil {
+		slog.Error("数据库连接失败", "error", err)
+		return nil, err
 	}
 
+	// 生成数据库字典服务
+	dbDictService := services.NewDbDictService(db)
+
+	return dbDictService.GetDatabaseInfo(dbConfig)
+}
+
+// generateDict 生成字典
+func generateDict(dbConfig *configs.DatabaseConfig, saveDirPath string, format string) (string, error) {
 	// 初始化数据库连接
 	db, err := configs.InitDatabase(dbConfig)
 	if err != nil {
@@ -29,7 +40,7 @@ func generateDict(dbConfig *configs.DatabaseConfig, saveDirPath string, format s
 		generatorService.GenerateModels("./dao/generate", "./models", "./services")
 	}
 
-	// 生成数据库字典
+	// 生成数据库字典服务
 	dbDictService := services.NewDbDictService(db)
 
 	// 生成数据库字典

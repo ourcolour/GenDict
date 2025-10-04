@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fyne.io/fyne/v2/app"
 	"goDict/utils"
 	"log/slog"
 )
@@ -23,7 +24,8 @@ func main() {
 	slog.Info("App is now running ...")
 
 	// 初始化GUI
-	mainView := NewMainView()
+	appInstance := app.New()
+	mainView := NewMainView(&appInstance)
 	mainView.Show()
 
 	slog.Info("App exited ...")

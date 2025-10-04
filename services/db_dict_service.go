@@ -4,7 +4,6 @@ import (
 	"errors"
 	"goDict/configs"
 	"goDict/models"
-	"goDict/utils"
 	"gorm.io/gorm"
 	"log/slog"
 	"slices"
@@ -72,118 +71,33 @@ func (this *DbDictService) buildTableInfo(
 		IndexList:    indexInfoList,
 	}
 
-	// 处理列信息
-	/*for _, columnType := range columnTypes {
-		// 获取列名
-		name := columnType.Name()
-
-		// 获取数据类型
-		dbType := columnType.DatabaseTypeName()
-
-		// 获取是否可为NULL
-		nullable, ok := columnType.Nullable()
-		if !ok {
-			nullable = true // 默认假设可为NULL
-		}
-
-		// 获取默认值
-		defaultValue, ok := columnType.DefaultValue()
-		if !ok {
-			defaultValue = ""
-		}
-
-		// 获取注释
-		comment, ok := columnType.Comment()
-		if !ok {
-			comment = ""
-		}
-		// 如果为空，尝试从查询结果中获取字段注释
-		if comment == "" {
-			comment = columnCommentMap[name]
-		}
-
-		// 检查是否是主键
-		isPrimary, ok := columnType.PrimaryKey()
-		if !ok {
-			isPrimary = false
-		}
-
-		// 检查是否是自增
-		isAutoIncrement, ok := columnType.AutoIncrement()
-		if !ok {
-			isAutoIncrement = false
-		}
-
-		// 检查是否是唯一
-		isUnique, ok := columnType.Unique()
-		if !ok {
-			isUnique = false
-		}
-
-		// 检查是否是唯一
-		length, ok := columnType.Length()
-		if !ok {
-			length = 0
-		}
-
-		// 检查数据精度
-		var decimalSize models.DecimalSizeInfo
-		precision, scale, ok := columnType.DecimalSize()
-		if !ok {
-			decimalSize = models.DecimalSizeInfo{
-				Precision: 0,
-				Scale:     0,
-			}
-		} else {
-			decimalSize = models.DecimalSizeInfo{
-				Precision: precision,
-				Scale:     scale,
-			}
-		}
-
-		columnInfo := &models.ColumnInfo{
-			Name:            name,
-			Type:            dbType,
-			Length:          length,
-			Nullable:        nullable,
-			Default:         defaultValue,
-			Comment:         comment,
-			IsPrimary:       isPrimary,
-			IsAutoIncrement: isAutoIncrement,
-			IsUnique:        isUnique,
-			DecimalSize:     decimalSize,
-		}
-		tableInfo.ColumnList = append(tableInfo.ColumnList, columnInfo)
-	}
-	*/
-
 	return tableInfo, nil
 }
 
-// getDatabaseInfo 生成数据库信息
-func (this *DbDictService) getDatabaseInfo() (*models.DatabaseInfo, error) {
+// GetDatabaseInfo 生成数据库信息
+func (this *DbDictService) GetDatabaseInfo(dbConfig *configs.DatabaseConfig) (*models.DatabaseInfo, error) {
 	// 获取migrator对象
 	migrator := this.DB.Migrator()
 
 	// 获取数据库名称（schema）
 	databaseName := migrator.CurrentDatabase()
 	// 获取全库对象类型（按表聚合）
-	tableTypeMap, err := this.getTableType(databaseName)
+	tableTypeMap, err := this.getTableType(dbConfig)
 	if err != nil {
 		return nil, err
 	}
 	// 获取全库索引（按表聚合）
-	indexInfoListMap, err := this.getTableIndexInfoMap(databaseName)
+	indexInfoListMap, err := this.getTableIndexInfoMap(dbConfig)
 	if err != nil {
 		return nil, err
 	}
 	// 获取全库字段注释（按表聚合）
-	tableCommentMap, err := this.getTableComment(databaseName)
+	tableCommentMap, err := this.getTableComment(dbConfig)
 	if err != nil {
 		return nil, err
 	}
 	// 获取全库字段类型（按表聚合）
-	tableColumnInfoMap, err := this.getTableColumnInfoMap(databaseName)
+	tableColumnInfoMap, err := this.getTableColumnInfoMap(dbConfig)
 	if err != nil {
 		return nil, err
 	}
@@ -231,15 +145,8 @@ func (this *DbDictService) getDatabaseInfo() (*models.DatabaseInfo, error) {
 
 // BuildAll 生成数据库
 func (this *DbDictService) BuildAll(dbConfig *configs.DatabaseConfig, outputDirPath string, format string, overwrite bool) (result []string, err error) {
-	// Args
-	// 如果是 SQLite 类型，需要判断文件是否存在
-	if "sqlite" == dbConfig.Type {
-		if !utils.FileExists(dbConfig.Database) {
-			return nil, errors.New("数据库文件不存在")
-		}
-	}
 	/* 获取数据库信息 */
-	databaseInfo, err := this.getDatabaseInfo()
+	databaseInfo, err := this.GetDatabaseInfo(dbConfig)
 	if nil != err {
 		slog.Error("生成数据库字典失败", "error", err)
 		return nil, err
