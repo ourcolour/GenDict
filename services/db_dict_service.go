@@ -75,7 +75,7 @@ func (this *DbDictService) buildTableInfo(
 }
 
 // GetDatabaseInfo 生成数据库信息
-func (this *DbDictService) GetDatabaseInfo(dbConfig *configs.DatabaseConfig) (*models.DatabaseInfo, error) {
+func (this *DbDictService) GetDatabaseInfo(dbConfig *configs.DatabaseConfig, selectedTableNameList []string) (*models.DatabaseInfo, error) {
 	// 获取migrator对象
 	migrator := this.DB.Migrator()
 
@@ -131,12 +131,7 @@ func (this *DbDictService) GetDatabaseInfo(dbConfig *configs.DatabaseConfig) (*m
 	sort.Strings(tableNameList)
 
 	// 生成数据库信息
-	dbInfo := &models.DatabaseInfo{
-		DatabaseName:  this.DB.Migrator().CurrentDatabase(),
-		TableCount:    len(tableList),
-		TableNameList: tableNameList,
-		TableMap:      tableMap,
-	}
+	dbInfo := models.NewDatabaseInfo(databaseName, tableMap, selectedTableNameList)
 
 	return dbInfo, nil
 }
@@ -144,17 +139,18 @@ func (this *DbDictService) GetDatabaseInfo(dbConfig *configs.DatabaseConfig) (*m
 //  ----- BUILD --------------------
 
 // BuildAll 生成数据库
-func (this *DbDictService) BuildAll(dbConfig *configs.DatabaseConfig, outputDirPath string, format string, overwrite bool) (result []string, err error) {
+func (this *DbDictService) BuildAll(dbConfig *configs.DatabaseConfig, outputDirPath string, format string, overwrite bool, selectedTableNameList []string) (result []string, err error) {
 	/* 获取数据库信息 */
-	databaseInfo, err := this.GetDatabaseInfo(dbConfig)
+	databaseInfo, err := this.GetDatabaseInfo(dbConfig, selectedTableNameList)
 	if nil != err {
 		slog.Error("生成数据库字典失败", "error", err)
 		return nil, err
 	}
 	slog.Debug("数据库字典", "databaseInfo", databaseInfo)
 
-	// 数据表数量（包含索引页）
-	total := len(databaseInfo.TableMap) + 1
+	/* 准备生成数据 */
+	// 选中的数据表数量（包含索引页）
+	total := databaseInfo.GetSelectedTableCount() + 1
 	// 当前数量
 	current := 0
 
@@ -171,12 +167,10 @@ func (this *DbDictService) BuildAll(dbConfig *configs.DatabaseConfig, outputDirP
 	}
 
 	/* 生成数据表信息 */
-	// 排序过的表名
-	tableNameList := databaseInfo.TableNameList
 	// 数据表map
 	tableInfoMap := databaseInfo.TableMap
 	// 遍历保存
-	for _, tableName := range tableNameList {
+	for _, tableName := range selectedTableNameList {
 		// 计数
 		current++
 		// 当前表信息

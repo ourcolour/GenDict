@@ -64,7 +64,90 @@ type TableInfo struct {
 // 数据库信息结构体
 type DatabaseInfo struct {
 	DatabaseName  string
-	TableCount    int
-	TableNameList []string
 	TableMap      map[string]TableInfo
+	TableNameList []string
+	// 选中的表名
+	selectedTableNameList []string
+}
+
+// NewDatabaseInfo 创建数据库信息结构体
+func NewDatabaseInfo(dbName string, tblMap map[string]TableInfo, selectedTableNameList []string) *DatabaseInfo {
+	result := &DatabaseInfo{}
+	result.DatabaseName = dbName
+	result.TableMap = tblMap
+
+	// 从tableMap中提取表名
+	result.TableNameList = make([]string, 0)
+	for tblName, _ := range tblMap {
+		result.TableNameList = append(result.TableNameList, tblName)
+	}
+
+	// 选中的表名
+	result.selectedTableNameList = make([]string, 0)
+	// 如果没有指定，直接返回
+	if nil == result.selectedTableNameList {
+		return result
+	}
+	// 确保选中的表名有效
+	for _, tblName := range selectedTableNameList {
+		if _, ok := tblMap[tblName]; ok {
+			result.selectedTableNameList = append(result.selectedTableNameList, tblName)
+		}
+	}
+
+	return result
+}
+
+// GetTableCount 获取表数量
+func (this *DatabaseInfo) GetTableCount() int {
+	return len(this.TableNameList)
+}
+
+// GetSelectedTableNameList 获取选中的表名列表
+func (this *DatabaseInfo) GetSelectedTableCount() int {
+	return len(this.selectedTableNameList)
+}
+
+// GetSelectedTableNameList 获取选中的表名列表
+func (this *DatabaseInfo) GetSelectedTableNameList() []string {
+	// Args
+	if nil == this.selectedTableNameList {
+		this.selectedTableNameList = make([]string, 0)
+	}
+
+	return this.selectedTableNameList
+}
+
+// SetSelectedTableNameList 设置选中的表名列表
+func (this *DatabaseInfo) SetSelectedTableNameList(selectedTableNameList []string) {
+	this.selectedTableNameList = selectedTableNameList
+	// 防止空指针
+	if nil == this.selectedTableNameList {
+		this.selectedTableNameList = make([]string, 0)
+	}
+}
+
+// GetSelectedTableMap 获取选中的表信息map
+func (this *DatabaseInfo) GetSelectedTableMap() map[string]*TableInfo {
+	result := make(map[string]*TableInfo)
+
+	// 选中的表名列表
+	selectedTableNameList := this.GetSelectedTableNameList()
+	if nil == selectedTableNameList || 1 > len(selectedTableNameList) {
+		return result
+	}
+
+	// 选中的表名列表
+	for _, tblName := range selectedTableNameList {
+		// 当前表信息
+		tableInfo, ok := this.TableMap[tblName]
+		if !ok {
+			continue
+		}
+
+		// 添加表信息
+		result[tblName] = &tableInfo
+	}
+
+	return result
 }

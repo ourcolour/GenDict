@@ -272,7 +272,7 @@ func renderingExcelDatabase(dbConfig *configs.DatabaseConfig, templateData inter
 
 	/* 填写数据 */
 	doc.SetCellValue(sheetName, fmt.Sprintf("B%d", ExcelDatabaseRowMap["DatabaseName"]), objInfo.DatabaseName)
-	doc.SetCellValue(sheetName, fmt.Sprintf("B%d", ExcelDatabaseRowMap["TableCount"]), objInfo.TableCount)
+	doc.SetCellValue(sheetName, fmt.Sprintf("B%d", ExcelDatabaseRowMap["TableCount"]), fmt.Sprintf("%d / %d", objInfo.GetSelectedTableCount(), objInfo.GetTableCount()))
 
 	// 定义边框样式
 	tableStyle1, err := doc.NewStyle(&excelize.Style{
@@ -290,23 +290,26 @@ func renderingExcelDatabase(dbConfig *configs.DatabaseConfig, templateData inter
 
 	// 处理列表
 	tableRowNo := ExcelDatabaseRowMap["TableMap"]
-	tableList := objInfo.TableMap
-	idx := 0
-	for _, tableInfo := range tableList {
+	// 选中的表信息map
+	selectedTableInfoMap := objInfo.GetSelectedTableMap()
+
+	// 遍历处理每一个表格
+	var idx int = 0
+	for _, tblInfo := range selectedTableInfoMap {
 		// 行号
 		tableRow := tableRowNo + idx
 		// 设置内容
-		doc.SetCellValue(sheetName, fmt.Sprintf("B%d", tableRow), tableInfo.TableName)
-		doc.SetCellHyperLink(sheetName, fmt.Sprintf("B%d", tableRow), tableInfo.TableName+"!A1", "Location")
-		doc.SetCellValue(sheetName, fmt.Sprintf("C%d", tableRow), tableInfo.TableType)
-		doc.SetCellValue(sheetName, fmt.Sprintf("D%d", tableRow), tableInfo.Comment)
+		doc.SetCellValue(sheetName, fmt.Sprintf("B%d", tableRow), tblInfo.TableName)
+		doc.SetCellHyperLink(sheetName, fmt.Sprintf("B%d", tableRow), tblInfo.TableName+"!A1", "Location")
+		doc.SetCellValue(sheetName, fmt.Sprintf("C%d", tableRow), tblInfo.TableType)
+		doc.SetCellValue(sheetName, fmt.Sprintf("D%d", tableRow), tblInfo.Comment)
 
-		// 递增
+		// 索引增加
 		idx++
 	}
 
 	// 设置样式
-	doc.SetCellStyle(sheetName, fmt.Sprintf("B%d", tableRowNo), fmt.Sprintf("D%d", tableRowNo+len(tableList)-1), tableStyle1)
+	doc.SetCellStyle(sheetName, fmt.Sprintf("B%d", tableRowNo), fmt.Sprintf("D%d", tableRowNo+len(selectedTableInfoMap)-1), tableStyle1)
 
 	return nil
 }
@@ -352,6 +355,11 @@ func renderingExcelTable(dbConfig *configs.DatabaseConfig, templateData interfac
 			Horizontal: "center", // 水平居中
 			Vertical:   "center", // 垂直居中
 		},
+		//Fill: &excelize.Fill{
+		//	Type:    "pattern",
+		//	Color:   []string{"#D9D9D9"},
+		//	Pattern: 1,
+		//},
 	})
 
 	// 处理列表

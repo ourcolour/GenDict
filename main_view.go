@@ -12,6 +12,7 @@ import (
 	"goDict/configs"
 	"goDict/utils"
 	"golang.org/x/text/language"
+	"log/slog"
 	"os"
 	"reflect"
 	"strconv"
@@ -90,6 +91,8 @@ var (
 )
 
 type MainView struct {
+	*BaseView
+
 	/* 基础控件 */
 	App    *fyne.App
 	Window *fyne.Window
@@ -143,21 +146,22 @@ func (this *MainView) init(appInstance *fyne.App) {
 	// 应用
 	this.App = appInstance
 	// 窗口
-	window := (*this.App).NewWindow(utils.I18nGetTextByMessageId("main-view.ui.window.title"))
+	window := (*this.App).NewWindow(I("main-view.ui.window.title"))
 	this.Window = &window
 
 	/* 标题 */
 	this.LblTitle = &widget.Label{
-		Text:      utils.I18nGetTextByMessageId("main-view.ui.rootContainer.label.text"),
+		Text:      I("main-view.ui.rootContainer.label.text"),
 		TextStyle: fyne.TextStyle{Bold: true, Italic: false, Monospace: false, Symbol: false, TabWidth: 0, Underline: false},
 		Alignment: 1,
 		Wrapping:  0,
 	}
 
 	/* 按钮 */
-	this.BtnTest = widget.NewButtonWithIcon(utils.I18nGetTextByMessageId("main-view.ui.BtnTest.label"), theme.DocumentCreateIcon(), this.btnTest_onClicked)
-	this.BtnGenerate = widget.NewButtonWithIcon(utils.I18nGetTextByMessageId("main-view.ui.BtnGenerate.label"), theme.BrokenImageIcon(), this.btnGenerate_onClicked)
-	this.BtnCustomizeGenerate = widget.NewButtonWithIcon(utils.I18nGetTextByMessageId("main-view.ui.BtnCustomizeGenerate.label"), theme.ContentAddIcon(), this.btnCustomizeGenerate_onClicked)
+	this.BtnTest = widget.NewButtonWithIcon(I("main-view.ui.BtnTest.label"), theme.InfoIcon(), this.btnTest_onClicked)
+	this.BtnCustomizeGenerate = widget.NewButtonWithIcon(I("main-view.ui.BtnCustomizeGenerate.label"), theme.MediaSkipNextIcon(), this.btnCustomizeGenerate_onClicked)
+	this.BtnGenerate = widget.NewButtonWithIcon(I("main-view.ui.BtnGenerate.label"), theme.MediaPlayIcon(), this.btnGenerate_onClicked)
+	this.BtnGenerate.Importance = widget.HighImportance
 
 	/* 表单控件 */
 	// 数据库类型
@@ -165,30 +169,30 @@ func (this *MainView) init(appInstance *fyne.App) {
 	this.SelDbType.SetSelected(DbTypeList[0])
 	// 数据库地址
 	this.TxtHost = widget.NewEntry()
-	this.TxtHost.SetPlaceHolder(utils.I18nGetTextByMessageId("main-view.ui.TxtHost.placeholder"))
+	this.TxtHost.SetPlaceHolder(I("main-view.ui.TxtHost.placeholder"))
 	// 端口
 	this.TxtPort = widget.NewEntry()
-	this.TxtPort.SetPlaceHolder(utils.I18nGetTextByMessageId("main-view.ui.TxtPort.placeholder"))
+	this.TxtPort.SetPlaceHolder(I("main-view.ui.TxtPort.placeholder"))
 	// 用户名
 	this.TxtUsername = widget.NewEntry()
-	this.TxtUsername.SetPlaceHolder(utils.I18nGetTextByMessageId("main-view.ui.TxtUsername.placeholder"))
+	this.TxtUsername.SetPlaceHolder(I("main-view.ui.TxtUsername.placeholder"))
 	// Oracle SID/Service
 	this.TxtService = widget.NewEntry()
-	this.TxtService.SetPlaceHolder(utils.I18nGetTextByMessageId("main-view.ui.TxtService.placeholder"))
+	this.TxtService.SetPlaceHolder(I("main-view.ui.TxtService.placeholder"))
 	// 密码
 	this.TxtPassword = widget.NewPasswordEntry()
-	this.TxtPassword.SetPlaceHolder(utils.I18nGetTextByMessageId("main-view.ui.TxtPassword.placeholder"))
+	this.TxtPassword.SetPlaceHolder(I("main-view.ui.TxtPassword.placeholder"))
 	// 数据库名
 	this.TxtDbName = widget.NewEntry()
-	this.TxtDbName.SetPlaceHolder(utils.I18nGetTextByMessageId("main-view.ui.TxtDbName.placeholder"))
+	this.TxtDbName.SetPlaceHolder(I("main-view.ui.TxtDbName.placeholder"))
 	// 字符集
 	this.SelCharset = widget.NewSelect(CharsetList, this.selCharset_onChanged)
 	this.SelCharset.SetSelected("utf8mb4")
 
 	// 输出目录
 	this.TxtOutputDir = widget.NewEntry()
-	this.TxtOutputDir.SetPlaceHolder(utils.I18nGetTextByMessageId("main-view.ui.TxtOutputDir.placeholder"))
-	this.BtnChooseOutputDir = widget.NewButton(utils.I18nGetTextByMessageId("main-view.ui.BtnChooseOutputDir.placeholder"), this.btnChooseOutputDir_onClicked)
+	this.TxtOutputDir.SetPlaceHolder(I("main-view.ui.TxtOutputDir.placeholder"))
+	this.BtnChooseOutputDir = widget.NewButton(I("main-view.ui.BtnChooseOutputDir.placeholder"), this.btnChooseOutputDir_onClicked)
 	outputDirContainer := container.NewBorder(nil, nil, nil, this.BtnChooseOutputDir, this.TxtOutputDir)
 
 	// 输出格式
@@ -198,16 +202,16 @@ func (this *MainView) init(appInstance *fyne.App) {
 	/* 表单 */
 	// 基础表单
 	this.FormBasic = &widget.Form{Items: []*widget.FormItem{
-		widget.NewFormItem(utils.I18nGetTextByMessageId("main-view.ui.form.formItem.SelDbType.text"), this.SelDbType),
-		widget.NewFormItem(utils.I18nGetTextByMessageId("main-view.ui.form.formItem.TxtHost.text"), this.TxtHost),
-		widget.NewFormItem(utils.I18nGetTextByMessageId("main-view.ui.form.formItem.TxtPort.text"), this.TxtPort),
-		widget.NewFormItem(utils.I18nGetTextByMessageId("main-view.ui.form.formItem.TxtService.text"), this.TxtService),
-		widget.NewFormItem(utils.I18nGetTextByMessageId("main-view.ui.form.formItem.TxtUsername.text"), this.TxtUsername),
-		widget.NewFormItem(utils.I18nGetTextByMessageId("main-view.ui.form.formItem.TxtPassword.text"), this.TxtPassword),
-		widget.NewFormItem(utils.I18nGetTextByMessageId("main-view.ui.form.formItem.TxtDbName.text"), this.TxtDbName),
-		widget.NewFormItem(utils.I18nGetTextByMessageId("main-view.ui.form.formItem.SelCharset.text"), this.SelCharset),
-		widget.NewFormItem(utils.I18nGetTextByMessageId("main-view.ui.form.formItem.SelOutputFormat.text"), this.SelOutputFormat),
-		widget.NewFormItem(utils.I18nGetTextByMessageId("main-view.ui.form.formItem.outputDirContainer.text"), outputDirContainer),
+		widget.NewFormItem(I("main-view.ui.form.formItem.SelDbType.text"), this.SelDbType),
+		widget.NewFormItem(I("main-view.ui.form.formItem.TxtHost.text"), this.TxtHost),
+		widget.NewFormItem(I("main-view.ui.form.formItem.TxtPort.text"), this.TxtPort),
+		widget.NewFormItem(I("main-view.ui.form.formItem.TxtService.text"), this.TxtService),
+		widget.NewFormItem(I("main-view.ui.form.formItem.TxtUsername.text"), this.TxtUsername),
+		widget.NewFormItem(I("main-view.ui.form.formItem.TxtPassword.text"), this.TxtPassword),
+		widget.NewFormItem(I("main-view.ui.form.formItem.TxtDbName.text"), this.TxtDbName),
+		widget.NewFormItem(I("main-view.ui.form.formItem.SelCharset.text"), this.SelCharset),
+		widget.NewFormItem(I("main-view.ui.form.formItem.SelOutputFormat.text"), this.SelOutputFormat),
+		widget.NewFormItem(I("main-view.ui.form.formItem.outputDirContainer.text"), outputDirContainer),
 	}}
 
 	/* 语言选择 */
@@ -234,42 +238,43 @@ func (this *MainView) init(appInstance *fyne.App) {
 	// 设置端口
 	this.changePort(this.SelDbType.Selected)
 	// 调试模式自动填写
-	this.initDebug("Oracle")
+	this.initDebug("MySQL")
 }
 
 // refreshUITexts 重新翻译界面文本
 func (this *MainView) refreshUILocale() {
 	// 更新窗口标题
-	(*this.Window).SetTitle(utils.I18nGetTextByMessageId("main-view.ui.window.title"))
+	(*this.Window).SetTitle(I("main-view.ui.window.title"))
 	// 窗口内标题标签
-	this.LblTitle.SetText(utils.I18nGetTextByMessageId("main-view.ui.rootContainer.label.text"))
+	this.LblTitle.SetText(I("main-view.ui.rootContainer.label.text"))
 
 	// 更新按钮文本
-	this.BtnTest.SetText(utils.I18nGetTextByMessageId("main-view.ui.BtnTest.label"))
-	this.BtnGenerate.SetText(utils.I18nGetTextByMessageId("main-view.ui.BtnGenerate.label"))
+	this.BtnTest.SetText(I("main-view.ui.BtnTest.label"))
+	this.BtnGenerate.SetText(I("main-view.ui.BtnGenerate.label"))
+	this.BtnCustomizeGenerate.SetText(I("main-view.ui.BtnCustomizeGenerate.label"))
 
 	// 更新占位符文本
-	this.TxtHost.SetPlaceHolder(utils.I18nGetTextByMessageId("main-view.ui.TxtHost.placeholder"))
-	this.TxtPort.SetPlaceHolder(utils.I18nGetTextByMessageId("main-view.ui.TxtPort.placeholder"))
-	this.TxtService.SetPlaceHolder(utils.I18nGetTextByMessageId("main-view.ui.TxtService.placeholder"))
-	this.TxtUsername.SetPlaceHolder(utils.I18nGetTextByMessageId("main-view.ui.TxtUsername.placeholder"))
-	this.TxtPassword.SetPlaceHolder(utils.I18nGetTextByMessageId("main-view.ui.TxtPassword.placeholder"))
-	this.TxtDbName.SetPlaceHolder(utils.I18nGetTextByMessageId("main-view.ui.TxtDbName.placeholder"))
-	this.TxtOutputDir.SetPlaceHolder(utils.I18nGetTextByMessageId("main-view.ui.TxtOutputDir.placeholder"))
-	this.BtnChooseOutputDir.SetText(utils.I18nGetTextByMessageId("main-view.ui.BtnChooseOutputDir.placeholder"))
+	this.TxtHost.SetPlaceHolder(I("main-view.ui.TxtHost.placeholder"))
+	this.TxtPort.SetPlaceHolder(I("main-view.ui.TxtPort.placeholder"))
+	this.TxtService.SetPlaceHolder(I("main-view.ui.TxtService.placeholder"))
+	this.TxtUsername.SetPlaceHolder(I("main-view.ui.TxtUsername.placeholder"))
+	this.TxtPassword.SetPlaceHolder(I("main-view.ui.TxtPassword.placeholder"))
+	this.TxtDbName.SetPlaceHolder(I("main-view.ui.TxtDbName.placeholder"))
+	this.TxtOutputDir.SetPlaceHolder(I("main-view.ui.TxtOutputDir.placeholder"))
+	this.BtnChooseOutputDir.SetText(I("main-view.ui.BtnChooseOutputDir.placeholder"))
 
 	// 更新表单项标签
 	if len(this.FormBasic.Items) >= 8 {
-		this.FormBasic.Items[0].Text = utils.I18nGetTextByMessageId("main-view.ui.form.formItem.SelDbType.text")
-		this.FormBasic.Items[1].Text = utils.I18nGetTextByMessageId("main-view.ui.form.formItem.TxtHost.text")
-		this.FormBasic.Items[2].Text = utils.I18nGetTextByMessageId("main-view.ui.form.formItem.TxtPort.text")
-		this.FormBasic.Items[3].Text = utils.I18nGetTextByMessageId("main-view.ui.form.formItem.TxtService.text")
-		this.FormBasic.Items[4].Text = utils.I18nGetTextByMessageId("main-view.ui.form.formItem.TxtUsername.text")
-		this.FormBasic.Items[5].Text = utils.I18nGetTextByMessageId("main-view.ui.form.formItem.TxtPassword.text")
-		this.FormBasic.Items[6].Text = utils.I18nGetTextByMessageId("main-view.ui.form.formItem.TxtDbName.text")
-		this.FormBasic.Items[7].Text = utils.I18nGetTextByMessageId("main-view.ui.form.formItem.SelCharset.text")
-		this.FormBasic.Items[8].Text = utils.I18nGetTextByMessageId("main-view.ui.form.formItem.SelOutputFormat.text")
-		this.FormBasic.Items[9].Text = utils.I18nGetTextByMessageId("main-view.ui.form.formItem.outputDirContainer.text")
+		this.FormBasic.Items[0].Text = I("main-view.ui.form.formItem.SelDbType.text")
+		this.FormBasic.Items[1].Text = I("main-view.ui.form.formItem.TxtHost.text")
+		this.FormBasic.Items[2].Text = I("main-view.ui.form.formItem.TxtPort.text")
+		this.FormBasic.Items[3].Text = I("main-view.ui.form.formItem.TxtService.text")
+		this.FormBasic.Items[4].Text = I("main-view.ui.form.formItem.TxtUsername.text")
+		this.FormBasic.Items[5].Text = I("main-view.ui.form.formItem.TxtPassword.text")
+		this.FormBasic.Items[6].Text = I("main-view.ui.form.formItem.TxtDbName.text")
+		this.FormBasic.Items[7].Text = I("main-view.ui.form.formItem.SelCharset.text")
+		this.FormBasic.Items[8].Text = I("main-view.ui.form.formItem.SelOutputFormat.text")
+		this.FormBasic.Items[9].Text = I("main-view.ui.form.formItem.outputDirContainer.text")
 		this.FormBasic.Refresh()
 	}
 
@@ -387,40 +392,40 @@ func (this *MainView) Show() {
 func (this *MainView) validateForm() error {
 	// 地址
 	if "" == strings.TrimSpace(this.TxtHost.Text) {
-		return errors.New(utils.I18nGetTextByMessageId("main-view.msg.error.databaseAddressRequired"))
+		return errors.New(I("main-view.msg.error.databaseAddressRequired"))
 	}
 	// 端口
 	if !this.TxtPort.Disabled() {
 		p, err := strconv.Atoi(this.TxtPort.Text)
 		if err != nil {
-			return errors.New(utils.I18nGetTextByMessageId("main-view.msg.error.invalidPort"))
+			return errors.New(I("main-view.msg.error.invalidPort"))
 		}
 		if 0 > p || 65535 < p {
-			return errors.New(utils.I18nGetTextByMessageId("main-view.msg.error.invalidPort"))
+			return errors.New(I("main-view.msg.error.invalidPort"))
 		}
 	}
 	// 账号
 	if !this.TxtUsername.Disabled() {
 		if "" == strings.TrimSpace(this.TxtUsername.Text) {
-			return errors.New(utils.I18nGetTextByMessageId("main-view.msg.error.usernameRequired"))
+			return errors.New(I("main-view.msg.error.usernameRequired"))
 		}
 	}
 	// 输出目录
 	if !this.TxtOutputDir.Disabled() {
 		if "" == strings.TrimSpace(this.TxtOutputDir.Text) {
-			return errors.New(utils.I18nGetTextByMessageId("main-view.msg.error.outputDirRequired"))
+			return errors.New(I("main-view.msg.error.outputDirRequired"))
 		}
 	}
 	// 库名
 	if !this.TxtDbName.Disabled() {
 		if "" == strings.TrimSpace(this.TxtDbName.Text) {
-			return errors.New(utils.I18nGetTextByMessageId("main-view.msg.error.databaseNameRequired"))
+			return errors.New(I("main-view.msg.error.databaseNameRequired"))
 		}
 	}
 	// Oracle启用Service
 	if "Oracle" == this.SelDbType.Selected {
 		if "" == strings.TrimSpace(this.TxtService.Text) {
-			return errors.New(utils.I18nGetTextByMessageId("main-view.msg.error.serviceRequired"))
+			return errors.New(I("main-view.msg.error.serviceRequired"))
 		}
 	}
 
@@ -434,7 +439,7 @@ func (this *MainView) createDatabaseConfig() (*configs.DatabaseConfig, error) {
 	if !this.TxtPort.Disabled() {
 		p, err := strconv.Atoi(this.TxtPort.Text)
 		if err != nil {
-			return nil, errors.New(utils.I18nGetTextByMessageId("main-view.msg.error.invalidPort"))
+			return nil, errors.New(I("main-view.msg.error.invalidPort"))
 		}
 		port = p
 	}
@@ -536,7 +541,7 @@ func (this *MainView) btnChooseOutputDir_onClicked() {
 	// 创建目录选择对话框
 	dialog.ShowFolderOpen(func(list fyne.ListableURI, err error) {
 		if err != nil {
-			dialog.ShowError(err, (*this.Window))
+			dialog.ShowError(errors.New(I("main-view.msg.error.folderOpenError")), (*this.Window))
 			return
 		}
 		if list == nil {
@@ -567,60 +572,64 @@ func (this *MainView) btnTest_onClicked() {
 	// 创建数据库配置
 	dbConfig, err := this.createDatabaseConfig()
 	if nil != err {
-		dialog.ShowError(errors.New(utils.I18nGetTextByMessageIdAndTemplateData("main-view.msg.error.invalidDatabaseConfig", map[string]interface{}{"Error": err.Error()})), (*this.Window))
+		dialog.ShowError(errors.New(Id("main-view.msg.error.invalidDatabaseConfig", map[string]interface{}{"Error": err.Error()})), (*this.Window))
 		return
 	}
 
 	// 使用现有的 InitDatabase 方法初始化数据库连接
 	db, err := configs.InitDatabase(dbConfig)
 	if err != nil {
-		dialog.ShowError(errors.New(utils.I18nGetTextByMessageIdAndTemplateData("main-view.msg.error.databaseConnectingFailed", map[string]interface{}{"Error": err.Error()})), (*this.Window))
+		dialog.ShowError(errors.New(Id("main-view.msg.error.databaseConnectingFailed", map[string]interface{}{"Error": err.Error()})), (*this.Window))
 		return
 	}
 
 	// 执行简单的查询来测试连接是否正常
 	sqlDB, err := db.DB()
 	if err != nil {
-		dialog.ShowError(errors.New(utils.I18nGetTextByMessageIdAndTemplateData("main-view.msg.error.databaseFetchingConnectionPoolFailed", map[string]interface{}{"Error": err.Error()})), (*this.Window))
+		dialog.ShowError(errors.New(Id("main-view.msg.error.databaseFetchingConnectionPoolFailed", map[string]interface{}{"Error": err.Error()})), (*this.Window))
 		return
 	}
 
 	// 尝试 ping 数据库
 	if err = sqlDB.Ping(); err != nil {
-		dialog.ShowError(errors.New(utils.I18nGetTextByMessageIdAndTemplateData("main-view.msg.error.databasePingingFailed", map[string]interface{}{"Error": err.Error()})), (*this.Window))
+		dialog.ShowError(errors.New(Id("main-view.msg.error.databasePingingFailed", map[string]interface{}{"Error": err.Error()})), (*this.Window))
 		return
 	}
 
 	dialog.ShowInformation(
-		utils.I18nGetTextByMessageId("main-view.msg.info"),
-		utils.I18nGetTextByMessageId("main-view.msg.error.databaseConnectingSucceeded"),
+		I("main-view.msg.info"),
+		I("main-view.msg.error.databaseConnectingSucceeded"),
 		(*this.Window),
 	)
 }
 
 // btnCustomizeGenerate_onClicked 自定义生成按钮点击事件处理函数
 func (this *MainView) btnCustomizeGenerate_onClicked() {
-	dialog.ShowInformation("Info", "User customized generation coming soon ...", (*this.Window))
-	return
+	//dialog.ShowInformation("Info", "User customized generation coming soon ...", (*this.Window))
+	//return
 
 	// 初始化数据库配置
 	dbConfig, err := this.createDatabaseConfig()
 	if err != nil {
-		dialog.ShowError(errors.New(utils.I18nGetTextByMessageIdAndTemplateData("main-view.msg.error.databaseInitializingFailed", map[string]interface{}{"Error": err.Error()})), (*this.Window))
+		dialog.ShowError(errors.New(Id("main-view.msg.error.databaseInitializingFailed", map[string]interface{}{"Error": err.Error()})), (*this.Window))
 		return
 	}
+
+	// 输出目录
+	outputDirPath := this.TxtOutputDir.Text
+	outputFormat := this.SelOutputFormat.Selected
 
 	// 验证表单
 	err = this.validateForm()
 	if err != nil {
-		dialog.ShowError(err, (*this.Window))
+		dialog.ShowError(errors.New(I("main-view.msg.error.validateFormError")), (*this.Window))
 		return
 	}
 
 	// 获取数据库信息
-	dbInfo, err := getDatabaseInfo(dbConfig)
+	dbInfo, err := getDatabaseInfo(dbConfig, nil)
 	if err != nil {
-		dialog.ShowError(errors.New(utils.I18nGetTextByMessageIdAndTemplateData("main-view.msg.error.databaseInfoFetchingFailed", map[string]interface{}{"Error": err.Error()})), (*this.Window))
+		dialog.ShowError(errors.New(Id("main-view.msg.error.databaseInfoFetchingFailed", map[string]interface{}{"Error": err.Error()})), (*this.Window))
 		return
 	}
 
@@ -632,6 +641,29 @@ func (this *MainView) btnCustomizeGenerate_onClicked() {
 
 	// 显示选择窗口
 	searchView := NewSearchView(this.App, result)
+	// 注册回调事件
+	searchView.OnFinished = func(selectedTableNameList []string) {
+		slog.Debug("selectedMap: %+v", selectedTableNameList)
+
+		go func() {
+			// 主窗口获得焦点
+			(*this.Window).RequestFocus()
+
+			// 生成数据
+			savePath, err := generateDict(dbConfig, outputDirPath, outputFormat, selectedTableNameList)
+			if err != nil {
+				dialog.ShowError(errors.New(Id("main-view.msg.error.generateDictError", map[string]interface{}{"Error": err.Error()})), (*this.Window))
+				return
+			}
+
+			dialog.ShowInformation(
+				I("main-view.msg.info"),
+				Id("main-view.msg.error.documentCreatingSucceeded", map[string]interface{}{"Message": savePath}),
+				(*this.Window),
+			)
+		}()
+	}
+	// 显示选择窗口
 	searchView.Show()
 }
 
@@ -640,7 +672,7 @@ func (this *MainView) btnGenerate_onClicked() {
 	// 初始化数据库配置
 	dbConfig, err := this.createDatabaseConfig()
 	if err != nil {
-		dialog.ShowError(errors.New(utils.I18nGetTextByMessageIdAndTemplateData("main-view.msg.error.databaseInitializingFailed", map[string]interface{}{"Error": err.Error()})), (*this.Window))
+		dialog.ShowError(errors.New(Id("main-view.msg.error.databaseInitializingFailed", map[string]interface{}{"Error": err.Error()})), (*this.Window))
 		return
 	}
 
@@ -651,20 +683,22 @@ func (this *MainView) btnGenerate_onClicked() {
 	// 验证表单
 	err = this.validateForm()
 	if err != nil {
-		dialog.ShowError(err, (*this.Window))
+		dialog.ShowError(errors.New(I("main-view.msg.error.validateFormError")), (*this.Window))
 		return
 	}
 
 	go func() {
-		savePath, err := generateDict(dbConfig, outputDirPath, outputFormat)
+		// 生成
+		savePath, err := generateDict(dbConfig, outputDirPath, outputFormat, nil)
 		if err != nil {
-			dialog.ShowError(err, (*this.Window))
-		} else {
-			dialog.ShowInformation(
-				utils.I18nGetTextByMessageId("main-view.msg.info"),
-				utils.I18nGetTextByMessageIdAndTemplateData("main-view.msg.error.documentCreatingSucceeded", map[string]interface{}{"Message": savePath}),
-				(*this.Window),
-			)
+			dialog.ShowError(errors.New(Id("main-view.msg.error.generateDictError", map[string]interface{}{"Error": err.Error()})), (*this.Window))
+			return
 		}
+
+		dialog.ShowInformation(
+			I("main-view.msg.info"),
+			Id("main-view.msg.error.documentCreatingSucceeded", map[string]interface{}{"Message": savePath}),
+			(*this.Window),
+		)
 	}()
 }

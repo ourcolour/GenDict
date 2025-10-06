@@ -2,13 +2,13 @@
 
 ### 库名/Database：{{.DatabaseName}}
 
-### 数量/Quantity：{{.TableCount}}
+### 数量/Quantity：{{.GetSelectedTableCount}} / {{.GetTableCount}}
 
 ### 清单/List：
 
 | 表名/Table                                  | 类型/Type                                          | 说明/Memo                                                              |
 |-------------------------------------------|--------------------------------------------------|----------------------------------------------------------------------|
- {{range $tableName, $table := .TableMap}} | [{{$table.TableName}}](#名称：{{$table.TableName}}) | {{if eq "table" $table.TableType}}表格 (table){{else}}视图 (view){{end}} | {{if $table.Comment}}{{$table.Comment}}{{else}}-{{end}} |
+ {{range $tableName, $table := .GetSelectedTableMap}} | [{{$table.TableName}}](#名称：{{$table.TableName}}) | {{if eq "table" $table.TableType}}表格 (table){{else}}视图 (view){{end}} | {{if $table.Comment}}{{$table.Comment}}{{else}}-{{end}} |
 {{end}}
 
 ----------

@@ -18,10 +18,12 @@ import (
 
 // DatabaseConfig 数据库配置结构
 type DatabaseConfig struct {
-	Type     string `yaml:"type"` // mysql, postgres, sqlserver, etc.
-	Host     string `yaml:"host"`
-	Port     int    `yaml:"port"`
-	Service  string `yaml:"service"` // oracle
+	// mysql, postgres, sqlserver, etc.
+	Type string `yaml:"type"`
+	Host string `yaml:"host"`
+	Port int    `yaml:"port"`
+	// oracle
+	Service  string `yaml:"service"`
 	Username string `yaml:"username"`
 	Password string `yaml:"password"`
 	Database string `yaml:"database"`
