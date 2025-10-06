@@ -18,7 +18,7 @@ A visual data dictionary generation tool developed using the Go language, suppor
 
 ## ✨ Features
 
-- **Multi-Database Support**: Supports various mainstream relational databases such as MySQL, PostgresSQL, Oracle, SQLite, and more.
+- **Multi-Database Support**: Supports various mainstream relational databases such as MySQL, SQLServer, PostgresSQL, Oracle, SQLite, and more.
 - **Intelligent Metadata Extraction**: Automatically parses database structures and accurately extracts metadata information like tables, fields, indexes, constraints, views, etc.
 - **Flexible Output Formats**: Supports exporting the data dictionary to multiple formats like Excel, Markdown, etc., for easy reference and integration.
 - **Intuitive Visual Interface**: Provides a simple and easy-to-use graphical interface, allowing data dictionary generation without writing complex commands.

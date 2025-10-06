@@ -375,7 +375,7 @@ func (this *SearchView) tblResult_updateHeaderCell(tableCellId widget.TableCellI
 		}
 		break
 	// 类型列
-	case 1:
+	case 2:
 		// 控件
 		control, ok := ctn.Objects[0].(*widget.Label)
 		if !ok {
@@ -391,7 +391,7 @@ func (this *SearchView) tblResult_updateHeaderCell(tableCellId widget.TableCellI
 		}
 		break
 	// 名称列
-	case 2:
+	case 1:
 		// 控件
 		control, ok := ctn.Objects[0].(*widget.Label)
 		if !ok {
@@ -454,22 +454,6 @@ func (this *SearchView) tblResult_updateDataCell(tableCellId widget.TableCellID,
 		this.checkBoxMap[tableName] = control
 
 		break
-	// 名称列
-	case 1:
-		// 控件
-		control, ok := ctn.Objects[0].(*widget.Label)
-		if !ok {
-			// 移除内容
-			ctn.RemoveAll()
-			// 添加控件
-			control = widget.NewLabel(tableName)
-			// 添加到容器
-			ctn.Add(control)
-		} else {
-			// 添加控件
-			control.SetText(tableName)
-		}
-		break
 	// 类型列
 	case 2:
 		// 控件
@@ -484,6 +468,22 @@ func (this *SearchView) tblResult_updateDataCell(tableCellId widget.TableCellID,
 		} else {
 			// 添加控件
 			control.SetText(tableType)
+		}
+		break
+	// 名称列
+	case 1:
+		// 控件
+		control, ok := ctn.Objects[0].(*widget.Label)
+		if !ok {
+			// 移除内容
+			ctn.RemoveAll()
+			// 添加控件
+			control = widget.NewLabel(tableName)
+			// 添加到容器
+			ctn.Add(control)
+		} else {
+			// 添加控件
+			control.SetText(tableName)
 		}
 		break
 	}
