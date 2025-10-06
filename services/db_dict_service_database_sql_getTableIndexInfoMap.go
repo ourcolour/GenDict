@@ -200,7 +200,7 @@ var (
 			FROM sqlite_master t
 			WHERE
 				type = 'index'
-			AND database_name = ?
+-- 			AND database_name = ?
 			ORDER BY
 				database_name
 			  , schema_name

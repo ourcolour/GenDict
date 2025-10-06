@@ -14,6 +14,8 @@
 
 ![screen](screen.png)
 
+![screen1](screen1.png)
+
 ## ✨ 功能特性
 
 - **多数据库支持**: 支持 MySQL、PostgresSQL、Oracle、SQLite 等多种主流关系型数据库

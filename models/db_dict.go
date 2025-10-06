@@ -82,12 +82,14 @@ func NewDatabaseInfo(dbName string, tblMap map[string]TableInfo, selectedTableNa
 		result.TableNameList = append(result.TableNameList, tblName)
 	}
 
-	// 选中的表名
-	result.selectedTableNameList = make([]string, 0)
-	// 如果没有指定，直接返回
+	// 如果没有指定，返回全部
 	if nil == result.selectedTableNameList {
+		result.selectedTableNameList = result.TableNameList
 		return result
 	}
+
+	// 选中的表名
+	result.selectedTableNameList = make([]string, 0)
 	// 确保选中的表名有效
 	for _, tblName := range selectedTableNameList {
 		if _, ok := tblMap[tblName]; ok {

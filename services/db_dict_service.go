@@ -170,7 +170,7 @@ func (this *DbDictService) BuildAll(dbConfig *configs.DatabaseConfig, outputDirP
 	// 数据表map
 	tableInfoMap := databaseInfo.TableMap
 	// 遍历保存
-	for _, tableName := range selectedTableNameList {
+	for _, tableName := range databaseInfo.GetSelectedTableNameList() {
 		// 计数
 		current++
 		// 当前表信息

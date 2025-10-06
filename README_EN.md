@@ -14,6 +14,8 @@ A visual data dictionary generation tool developed using the Go language, suppor
 
 ![screen](screen.png)
 
+![screen1](screen1.png)
+
 ## ✨ Features
 
 - **Multi-Database Support**: Supports various mainstream relational databases such as MySQL, PostgresSQL, Oracle, SQLite, and more.

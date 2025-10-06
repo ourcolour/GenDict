@@ -123,7 +123,7 @@ func (this *SearchView) init(app *fyne.App, tableInfoMap map[string]string) {
 	// 窗口
 	window := (*this.app).NewWindow(I("search-view.ui.window.title"))
 	this.window = &window
-	(*this.window).Resize(fyne.NewSize(550, 480))
+	(*this.window).Resize(fyne.NewSize(580, 480))
 	// 初始化数据
 	this.initData(tableInfoMap)
 	// 设置内容

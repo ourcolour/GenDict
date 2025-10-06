@@ -78,6 +78,10 @@ func (this *DbDictService) getTableIndexInfoMap(dbConfig *configs.DatabaseConfig
 	query := sql_getTableIndexInfoMap[dbType]
 	// 参数
 	params := []interface{}{dbConfig.Database}
+	// Sqlite 不需要传数据库名
+	if "sqlite" == dbType {
+		params = []interface{}{}
+	}
 	// 调用
 	err := this.DB.Raw(query, params...).Scan(&dataList).Error
 	if err != nil {

@@ -39,6 +39,7 @@ func generateDict(dbConfig *configs.DatabaseConfig, saveDirPath string, format s
 	pathList, err := dbDictService.BuildAll(dbConfig, saveDirPath, format, true, selectedTableNameList)
 	if err != nil {
 		slog.Error("生成失败", "error", err)
+		return "", err
 	} else {
 		slog.Info("生成成功", "pathList", pathList)
 	}

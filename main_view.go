@@ -81,7 +81,7 @@ var (
 		"SQLite": map[string]bool{
 			"TxtHost":     true,
 			"TxtPort":     false,
-			"TxtUsername": true,
+			"TxtUsername": false,
 			"TxtPassword": false,
 			"TxtDbName":   false,
 			"SelCharset":  false,
@@ -228,7 +228,7 @@ func (this *MainView) init(appInstance *fyne.App) {
 	))
 
 	// 窗口尺寸
-	(*this.Window).Resize(fyne.NewSize(460, 400))
+	(*this.Window).Resize(fyne.NewSize(580, 400))
 	(*this.Window).SetContent(rootContainer)
 
 	// 默认值
@@ -646,8 +646,10 @@ func (this *MainView) btnCustomizeGenerate_onClicked() {
 		slog.Debug("selectedMap: %+v", selectedTableNameList)
 
 		go func() {
-			// 主窗口获得焦点
-			(*this.Window).RequestFocus()
+			fyne.Do(func() {
+				// 主窗口获得焦点
+				(*this.Window).RequestFocus()
+			})
 
 			// 生成数据
 			savePath, err := generateDict(dbConfig, outputDirPath, outputFormat, selectedTableNameList)
