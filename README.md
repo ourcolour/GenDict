@@ -90,7 +90,6 @@ sudo mv gen-dict /usr/local/bin/
 | Oracle     | ✅ 支持 | 11g+ | 表、视图、索引、注释 |
 | SQLite     | ✅ 支持 | 3.0+ | 表、索引       |
 
-
 ## 🤝 参与贡献
 
 我们热烈欢迎社区贡献！以下是参与方式：

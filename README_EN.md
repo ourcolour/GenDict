@@ -90,7 +90,6 @@ The current tool supports the following database types.
 | Oracle     | ✅ Supported | 11g+               | Tables, Views, Indexes, Comments |
 | SQLite     | ✅ Supported | 3.0+               | Tables, Views                    |
 
-
 ## 🤝 Contributing
 
 We warmly welcome community contributions! Here's how you can participate:
