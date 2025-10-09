@@ -82,12 +82,13 @@ sudo mv gen-dict /usr/local/bin/
 
 The current tool supports the following database types.
 
-| Database   | Status | Vesion Requirement | Supported Features               |
-|------------|--------|------------------------|----------------------------------|
-| MySQL      | ✅ Supported   | 5.7+                   | Tables, Views, Indexes, Comments |
-| PostgresSQL | ✅ Supported   | 9.6+                   | Tables, Views, Indexes, Comments |
-| Oracle     | ✅ Supported   | 11g+                   | Tables, Views, Indexes, Comments |
-| SQLite     | ✅ Supported   | 3.0+                   | Tables, Views                    |
+| Database   | Status       | Vesion Requirement | Supported Features               |
+|------------|--------------|--------------------|----------------------------------|
+| MySQL      | ✅ Supported | 5.7+               | Tables, Views, Indexes, Comments |
+| SQLServer  | ✅ Supported | 2008+              | Tables, Views, Indexes, Comments |
+| PostgreSQL | ✅ Supported | 9.6+               | Tables, Views, Indexes, Comments |
+| Oracle     | ✅ Supported | 11g+               | Tables, Views, Indexes, Comments |
+| SQLite     | ✅ Supported | 3.0+               | Tables, Views                    |
 
 
 ## 🤝 Contributing
