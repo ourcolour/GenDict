@@ -18,10 +18,14 @@ func InitLogger(mode, logPath string) error {
 
 	// 1. 配置日志级别
 	switch mode {
-	case "development":
+	case "DEBUG":
 		level = slog.LevelDebug
-	case "production":
+	case "INFO":
 		level = slog.LevelInfo
+	case "WARN":
+		level = slog.LevelWarn
+	case "ERROR":
+		level = slog.LevelError
 	default:
 		level = slog.LevelInfo
 	}

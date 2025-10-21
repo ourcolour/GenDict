@@ -83,7 +83,7 @@ func NewDatabaseInfo(dbName string, tblMap map[string]TableInfo, selectedTableNa
 	}
 
 	// 如果没有指定，返回全部
-	if nil == result.selectedTableNameList {
+	if nil == selectedTableNameList {
 		result.selectedTableNameList = result.TableNameList
 		return result
 	}
